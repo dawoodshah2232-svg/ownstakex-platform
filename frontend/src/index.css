@@ -563,8 +563,10 @@ video{max-width:100%}
 /* ================= Admin CRM — eBiz Earn style ================= */
 .adm{display:flex;min-height:100vh;background:#F4F6F8;color:#0E1C2F}
 .adm-side{position:sticky;top:0;height:100vh;width:256px;flex:none;background:#0E1C2F;color:#fff;padding:24px;display:flex;flex-direction:column;z-index:40}
-.adm-brand{display:flex;align-items:center;gap:10px;padding-bottom:24px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1)}
-.adm-brand img{height:32px;width:auto}
+.adm-brand{display:block;padding-bottom:24px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.adm-logo-box{display:inline-flex;align-items:center;background:#fff;border-radius:14px;padding:8px 14px}
+.adm-logo-box img{height:30px;width:auto;display:block}
+.adm-brand small{display:block;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:10px}
 .adm-brand small{display:block;font-size:11px;color:rgba(255,255,255,.5);font-weight:500;letter-spacing:.04em}
 .adm-sec{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.4);padding:12px 12px 6px;font-weight:700}
 .adm-nav{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:8px;font-size:13px;border:0;background:none;cursor:pointer;color:#9ca3af;font-weight:500;text-align:left;font-family:inherit;transition:background .15s,color .15s}

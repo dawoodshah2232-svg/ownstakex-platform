@@ -55,7 +55,7 @@ export default function App() {
           />
           <Route
             path="/admin"
-            element={<Shell><ProtectedRoute roles={["admin"]}><AdminDashboard /></ProtectedRoute></Shell>}
+            element={<ProtectedRoute roles={["admin"]}><AdminDashboard /></ProtectedRoute>}
           />
           <Route path="*" element={<Shell><NotFound /></Shell>} />
         </Routes>
