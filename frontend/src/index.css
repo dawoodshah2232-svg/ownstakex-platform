@@ -559,3 +559,94 @@ video{max-width:100%}
 }
 .detail-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:start}
 @media(max-width:900px){.detail-grid{grid-template-columns:1fr}}
+
+/* ================= Admin CRM — eBiz Earn style ================= */
+.adm{display:flex;min-height:100vh;background:#F4F6F8;color:#0E1C2F}
+.adm-side{position:sticky;top:0;height:100vh;width:256px;flex:none;background:#0E1C2F;color:#fff;padding:24px;display:flex;flex-direction:column;z-index:40}
+.adm-brand{display:flex;align-items:center;gap:10px;padding-bottom:24px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.adm-brand img{height:32px;width:auto}
+.adm-brand small{display:block;font-size:11px;color:rgba(255,255,255,.5);font-weight:500;letter-spacing:.04em}
+.adm-sec{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.4);padding:12px 12px 6px;font-weight:700}
+.adm-nav{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:8px;font-size:13px;border:0;background:none;cursor:pointer;color:#9ca3af;font-weight:500;text-align:left;font-family:inherit;transition:background .15s,color .15s}
+.adm-nav:hover{background:rgba(255,255,255,.05);color:#fff}
+.adm-nav.on{background:#f97316;color:#fff;font-weight:700}
+.adm-nav svg{flex:none}
+.adm-foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
+.adm-demo-badge{font-size:10px;font-weight:800;letter-spacing:.08em;background:rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:4px 8px}
+.adm-logout{margin-left:auto;background:none;border:0;cursor:pointer;color:#9ca3af;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;font-family:inherit}
+.adm-logout:hover{color:#f87171}
+.adm-backdrop{display:none}
+.adm-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.adm-top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.adm-top-title{font-size:15px;font-weight:800;color:#0E1C2F}
+.adm-burger{display:none;background:none;border:1px solid #e5e7eb;border-radius:10px;padding:8px;cursor:pointer;color:#0E1C2F}
+.adm-user{display:flex;align-items:center;gap:12px}
+.adm-user-meta{text-align:right}
+.adm-user-meta b{display:block;font-size:14px;color:#0E1C2F}
+.adm-user-meta span{font-size:12px;color:#6b7280}
+.adm-avatar{width:36px;height:36px;border-radius:50%;background:#0E1C2F;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex:none}
+.adm-content{padding:24px 32px;max-width:1280px;width:100%;margin:0 auto}
+.adm-h1{font-size:28px;font-weight:800;letter-spacing:-.02em;color:#0E1C2F}
+.adm-sub{font-size:14px;color:#6b7280;margin-top:4px}
+.adm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:20px 0}
+.adm-stat{background:#fff;border:1px solid #e8ebef;border-radius:16px;padding:20px;display:flex;gap:16px;align-items:center}
+.adm-tile{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:none}
+.adm-stat-v{font-size:30px;font-weight:800;color:#0E1C2F;letter-spacing:-.02em;line-height:1.1}
+.adm-stat-l{font-size:13px;color:#6b7280;margin-top:2px}
+.adm-panel{background:#fff;border:1px solid #e8ebef;border-radius:24px;padding:24px;box-shadow:0 1px 2px rgba(14,26,43,.04)}
+.adm-panel h3{font-size:16px;font-weight:800;color:#0E1C2F;margin-bottom:4px}
+.adm-panel .adm-psub{font-size:13px;color:#6b7280;margin-bottom:16px}
+.adm-table{width:100%;border-collapse:collapse}
+.adm-table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;text-align:left;padding:12px;font-weight:700;white-space:nowrap}
+.adm-table td{font-size:14px;padding:12px;border-top:1px solid #f1f3f5;vertical-align:middle;color:#0E1C2F}
+.adm-table tr:hover td{background:#fafbfc}
+.adm-badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.adm-badge.green{background:#dcfce7;color:#15803d}
+.adm-badge.blue{background:#dbeafe;color:#1d4ed8}
+.adm-badge.amber{background:#fef3c7;color:#b45309}
+.adm-badge.red{background:#fee2e2;color:#b91c1c}
+.adm-badge.gray{background:#f3f4f6;color:#4b5563}
+.adm-badge.orange{background:#ffedd5;color:#c2410c}
+.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;border-radius:12px;padding:9px 16px;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s;white-space:nowrap}
+.adm-btn.primary{background:#f97316;color:#fff}
+.adm-btn.primary:hover{background:#ea6a0a}
+.adm-btn.secondary{background:#fff;border-color:#e5e7eb;color:#374151}
+.adm-btn.secondary:hover{background:#f9fafb}
+.adm-btn.danger-ghost{background:none;color:#b91c1c}
+.adm-btn.danger-ghost:hover{background:#fef2f2}
+.adm-btn:disabled{opacity:.6;cursor:default}
+.adm-field{margin-bottom:14px}
+.adm-field label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}
+.adm-input,.adm-select,.adm-textarea{width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-size:14px;font-family:inherit;color:#0E1C2F;background:#fff}
+.adm-input:focus,.adm-select:focus,.adm-textarea:focus{outline:2px solid rgba(249,115,22,.35);border-color:#f97316}
+.adm-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(2px);z-index:100;display:grid;place-items:center;padding:16px}
+.adm-modal{background:#fff;border-radius:24px;max-width:768px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;position:relative}
+.adm-modal-x{position:absolute;top:16px;right:16px;background:#f3f4f6;border:0;border-radius:10px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;color:#4b5563}
+.adm-modal-x:hover{background:#e5e7eb}
+.adm-media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:10px}
+.adm-media-thumb{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;background:#f3f4f6}
+.adm-media-thumb img,.adm-media-thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.adm-media-thumb button{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(14,26,43,.75);color:#fff;cursor:pointer;display:grid;place-items:center}
+.adm-doc-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #f1f3f5;font-size:14px}
+.adm-progress{height:8px;border-radius:99px;background:#f1f3f5;overflow:hidden;min-width:90px}
+.adm-progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#f97316,#ff9e2c)}
+.adm-alert{display:flex;align-items:center;gap:10px;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:600;margin-bottom:16px}
+.adm-alert.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.adm-alert.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.adm-empty{text-align:center;padding:48px 16px;color:#6b7280}
+.adm-spinner{width:22px;height:22px;border:3px solid #fed7aa;border-top-color:#f97316;border-radius:50%;animation:admSpin .7s linear infinite;display:inline-block;vertical-align:-4px}
+@keyframes admSpin{to{transform:rotate(360deg)}}
+.adm-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1100px){.adm-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1023px){
+  .adm-side{position:fixed;left:0;top:0;transform:translateX(-105%);transition:transform .25s ease;box-shadow:30px 0 60px rgba(14,26,43,.25)}
+  .adm-side.open{transform:none}
+  .adm-backdrop{display:block;position:fixed;inset:0;background:rgba(14,26,43,.45);z-index:30;border:0;cursor:pointer}
+  .adm-burger{display:grid;place-items:center}
+  .adm-content{padding:20px 16px}
+  .adm-user-meta{display:none}
+  .adm-grid-2{grid-template-columns:1fr}
+  .adm-table-wrap{overflow-x:auto}
+}
+@media(max-width:640px){.adm-stats{grid-template-columns:1fr 1fr}.adm-h1{font-size:24px}}
+@media(max-width:640px){.adm-form-grid{grid-template-columns:1fr !important}}

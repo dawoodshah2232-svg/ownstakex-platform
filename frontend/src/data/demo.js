@@ -188,3 +188,29 @@ export const STEPS = [
   { n: "04", title: "Track & earn", text: "Follow performance and receive distributions." },
   { n: "05", title: "Exit anytime", text: "List your stake for resale after lock-in." },
 ];
+
+export const DEMO_CAMPAIGNS = [
+  { id: 1, project: "Marina Gate Residences", raised: 1625000, target: 2500000, investors: 214, status: "funding", ends: "2026-11-30" },
+  { id: 2, project: "Azure 88 Yacht Fraction", raised: 990000, target: 1800000, investors: 96, status: "funding", ends: "2026-12-15" },
+  { id: 3, project: "Palm Hospitality Suites", raised: 0, target: 3200000, investors: 0, status: "coming_soon", ends: "2027-01-20" },
+];
+
+export const DEMO_TREASURY = {
+  total_raised: 8450000,
+  pending_payouts: 128400,
+  paid_out: 312050,
+  transactions: [
+    { id: "TXN-301", date: "2026-10-05", type: "Investment", project: "Marina Gate Residences", amount: 25000, status: "completed" },
+    { id: "TXN-302", date: "2026-10-04", type: "Distribution", project: "Azure 88 Yacht Fraction", amount: 18400, status: "completed" },
+    { id: "TXN-303", date: "2026-10-03", type: "Investment", project: "Azure 88 Yacht Fraction", amount: 10000, status: "pending" },
+    { id: "TXN-304", date: "2026-10-02", type: "Refund", project: "Palm Hospitality Suites", amount: 5000, status: "completed" },
+  ],
+};
+
+export const DEMO_AUDIT = [
+  { id: 1, time: "2026-10-07 09:42", actor: "S. Iqbal (admin)", action: "Project updated", detail: "Marina Gate Residences — target raised" },
+  { id: 2, time: "2026-10-07 09:15", actor: "System", action: "KYC approved", detail: "Sara M. — documents verified" },
+  { id: 3, time: "2026-10-06 16:03", actor: "S. Iqbal (admin)", action: "Document published", detail: "Q3 2026 Performance Report" },
+  { id: 4, time: "2026-10-06 11:28", actor: "System", action: "Payout executed", detail: "AED 18,400 — Azure 88 Yacht Fraction" },
+  { id: 5, time: "2026-10-05 14:51", actor: "S. Iqbal (admin)", action: "Announcement sent", detail: "Q3 2026 reports published" },
+];
