@@ -203,7 +203,7 @@ export default function AdminDashboard() {
       {drawer && <button className="adm-backdrop" onClick={() => setDrawer(false)} aria-label="Close menu" />}
       <aside className={`adm-side${drawer ? " open" : ""}`} aria-label="Admin sections">
         <div className="adm-brand">
-          <span className="adm-logo-box"><img src="/logo.png" alt="OwnStakeX" /></span>
+          <img src="/logo-white.png" alt="OwnStakeX" />
           <small>Command Center</small>
         </div>
         <nav style={{ flex: 1, overflowY: "auto" }}>
