@@ -14,15 +14,12 @@ class Project extends Model
         'cover_image', 'video_url',
     ];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'capital' => 'decimal:2',
             'unit_price' => 'decimal:2',
             'campaign_ends' => 'date',
             'long_stop' => 'date',
         ];
-    }
 
     /** @return HasMany<ProjectImage> */
     public function images(): HasMany

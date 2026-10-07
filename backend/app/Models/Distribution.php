@@ -11,14 +11,11 @@ class Distribution extends Model
 
     protected $fillable = ['project_id', 'amount', 'per_unit', 'note', 'paid_at'];
 
-    protected function casts(): array
-    {
-        return [
+    protected $casts = [
             'amount' => 'decimal:2',
             'per_unit' => 'decimal:2',
             'paid_at' => 'datetime',
         ];
-    }
 
     /** @return BelongsTo<Project, $this> */
     public function project(): BelongsTo

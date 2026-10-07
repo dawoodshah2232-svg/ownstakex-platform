@@ -1,4 +1,4 @@
-# OwnStakeX — API Backend (Laravel)
+# OwnStakeX — API Backend (Laravel 10)
 
 REST API for the OwnStakeX investment platform. Token authentication via
 Laravel Sanctum. Owned by Bridging Investment LLC, Dubai, UAE.
@@ -10,7 +10,7 @@ for quick local smoke tests — never ship a SQLite `.env` to production.
 
 ## Setup
 
-Requirements: PHP 8.3+, Composer, MySQL 8.
+Requirements: PHP 8.1+, Composer, MySQL 8.
 
 ```bash
 cd backend

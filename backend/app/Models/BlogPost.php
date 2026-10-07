@@ -10,8 +10,5 @@ class BlogPost extends Model
         'slug', 'title', 'excerpt', 'body', 'cover_image', 'tag', 'read_time', 'published_at',
     ];
 
-    protected function casts(): array
-    {
-        return ['published_at' => 'datetime'];
-    }
+    protected $casts = ['published_at' => 'datetime'];
 }

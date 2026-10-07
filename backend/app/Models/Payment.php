@@ -9,10 +9,7 @@ class Payment extends Model
 {
     protected $fillable = ['user_id', 'investment_id', 'amount', 'method', 'status', 'reference'];
 
-    protected function casts(): array
-    {
-        return ['amount' => 'decimal:2'];
-    }
+    protected $casts = ['amount' => 'decimal:2'];
 
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo

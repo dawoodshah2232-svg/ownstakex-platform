@@ -10,10 +10,7 @@ class Investment extends Model
 {
     protected $fillable = ['user_id', 'project_id', 'units', 'amount', 'status', 'certificate_no'];
 
-    protected function casts(): array
-    {
-        return ['amount' => 'decimal:2'];
-    }
+    protected $casts = ['amount' => 'decimal:2'];
 
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo

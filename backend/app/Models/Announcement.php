@@ -8,8 +8,5 @@ class Announcement extends Model
 {
     protected $fillable = ['title', 'body', 'audience', 'published_at'];
 
-    protected function casts(): array
-    {
-        return ['published_at' => 'datetime'];
-    }
+    protected $casts = ['published_at' => 'datetime'];
 }
