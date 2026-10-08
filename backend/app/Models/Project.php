@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\DeadlineSeverity;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -12,6 +14,7 @@ class Project extends Model
         'capital', 'units', 'unit_price', 'min_units', 'max_units', 'reserved', 'funded',
         'status', 'version', 'campaign_ends', 'long_stop', 'operator', 'issuer',
         'cover_image', 'video_url',
+        'closing_date', 'closing_original_date', 'extension_history', 'held_units',
     ];
 
     protected $casts = [
@@ -19,6 +22,10 @@ class Project extends Model
             'unit_price' => 'decimal:2',
             'campaign_ends' => 'date',
             'long_stop' => 'date',
+            'closing_date' => 'datetime',
+            'closing_original_date' => 'datetime',
+            'extension_history' => 'array',
+            'held_units' => 'integer',
         ];
 
     /** @return HasMany<ProjectImage> */
@@ -49,6 +56,22 @@ class Project extends Model
     public function distributions(): HasMany
     {
         return $this->hasMany(Distribution::class);
+    }
+
+    /** @return HasMany<Poll> */
+    public function polls(): HasMany
+    {
+        return $this->hasMany(Poll::class);
+    }
+
+    /**
+     * Deadline severity array — mirrors the static demo's dlSev() bands.
+     *
+     * @return Attribute<array{key: string, label: string, days_left: float|null}, never>
+     */
+    protected function deadline(): Attribute
+    {
+        return Attribute::get(fn (): array => DeadlineSeverity::band($this->closing_date));
     }
 
     public function availableUnits(): int

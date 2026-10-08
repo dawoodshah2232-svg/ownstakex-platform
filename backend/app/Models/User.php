@@ -71,4 +71,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payment::class);
     }
+
+    /** @return HasMany<PollVote> */
+    public function pollVotes(): HasMany
+    {
+        return $this->hasMany(PollVote::class);
+    }
+
+    /** @return HasMany<ReferralCommission> */
+    public function referralCommissions(): HasMany
+    {
+        return $this->hasMany(ReferralCommission::class, 'referrer_id');
+    }
 }

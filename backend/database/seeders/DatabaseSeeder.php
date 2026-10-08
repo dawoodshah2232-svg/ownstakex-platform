@@ -4,13 +4,17 @@ namespace Database\Seeders;
 
 use App\Models\Announcement;
 use App\Models\BlogPost;
+use App\Models\Certificate;
 use App\Models\Distribution;
 use App\Models\Document;
 use App\Models\Investment;
 use App\Models\Payment;
+use App\Models\Poll;
 use App\Models\Project;
 use App\Models\ProjectImage;
+use App\Models\ReferralCommission;
 use App\Models\Reservation;
+use App\Models\Statement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -150,6 +154,23 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // Advanced CRM workflow demo values (mirrors bridging-investments/js/data.js).
+        $deadlineSeed = [
+            'OX-YT-01' => ['days' => 40, 'held' => 8],
+            'OX-PR-02' => ['days' => 12, 'held' => 5],
+            'OX-HS-03' => ['days' => 5, 'held' => 0],
+            'OX-FD-04' => ['days' => 2, 'held' => 3],
+        ];
+        foreach ($deadlineSeed as $code => $seed) {
+            $closing = now()->addDays($seed['days']);
+            Project::where('code', $code)->update([
+                'closing_date' => $closing,
+                'closing_original_date' => $closing,
+                'extension_history' => [],
+                'held_units' => $seed['held'],
+            ]);
+        }
+
         $yacht = Project::where('code', 'OX-YT-01')->first();
         $property = Project::where('code', 'OX-PR-02')->first();
 
@@ -219,6 +240,67 @@ class DatabaseSeeder extends Seeder
             'note' => 'Q3 2026 rental distribution (demo)',
             'paid_at' => now()->subDays(20),
         ]);
+
+        // Advanced CRM workflow seed: a second investment for the investor (yacht),
+        // a funded investment (for commission settlement), certificates, a poll,
+        // a holding statement, and referral commissions across the full pipeline.
+        $investment2 = Investment::create([
+            'user_id' => $investor->id,
+            'project_id' => $yacht->id,
+            'units' => 8,
+            'amount' => 8 * $yacht->unit_price,
+            'status' => 'active',
+            'certificate_no' => 'CRT-2026-0877',
+        ]);
+
+        $fundedInvestment = Investment::create([
+            'user_id' => $investor->id,
+            'project_id' => $yacht->id,
+            'units' => 2,
+            'amount' => 2 * $yacht->unit_price,
+            'status' => 'funded',
+            'certificate_no' => null,
+        ]);
+
+        Certificate::create([
+            'investment_id' => $investment->id,
+            'cert_no' => 'CRT-2026-0912',
+            'issued_at' => now()->subDays(48),
+        ]);
+
+        Certificate::create([
+            'investment_id' => $investment2->id,
+            'cert_no' => 'CRT-2026-0877',
+            'issued_at' => now()->subDays(33),
+        ]);
+
+        Poll::create([
+            'project_id' => $yacht->id,
+            'question' => 'Should the operator proceed with the Q4 refit schedule?',
+            'options' => ['Approve the refit plan', 'Defer to Q1 2027', 'Request revised quote'],
+            'closes_at' => now()->addDays(12),
+        ]);
+
+        Statement::create([
+            'investment_id' => $investment->id,
+            'period' => 'Q3 2026',
+            'version' => 1,
+            'correction_of_id' => null,
+        ]);
+
+        // Referral commissions for the admin acting as referrer, one per pipeline stage.
+        $commissions = [
+            ['referred_investment_id' => $investment->id, 'amount_cents' => 250000, 'status' => 'accrued', 'settled_at' => null],
+            ['referred_investment_id' => $investment2->id, 'amount_cents' => 300000, 'status' => 'approved', 'settled_at' => null],
+            ['referred_investment_id' => $fundedInvestment->id, 'amount_cents' => 200000, 'status' => 'payable', 'settled_at' => null],
+            ['referred_investment_id' => $fundedInvestment->id, 'amount_cents' => 200000, 'status' => 'paid', 'settled_at' => now()->subDays(4)],
+        ];
+        foreach ($commissions as $commission) {
+            ReferralCommission::create([
+                'referrer_id' => $admin->id,
+                ...$commission,
+            ]);
+        }
 
         BlogPost::create([
             'slug' => 'spv-explained',

@@ -3,10 +3,13 @@
 use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BlogController;
+use App\Http\Controllers\Api\V1\DeadlineController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\InboxController;
 use App\Http\Controllers\Api\V1\InvestorController;
+use App\Http\Controllers\Api\V1\PollController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ReferralCommissionController;
 use App\Http\Controllers\Api\V1\ReservationController;
 use App\Http\Controllers\Api\V1\WaitlistController;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +41,15 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/investor/dashboard', [InvestorController::class, 'dashboard']);
 
+        // Advanced CRM workflow: investor self-service ownership records.
+        Route::get('/my/ownership', [InvestorController::class, 'ownership']);
+        Route::get('/my/certificates/{certificate}', [InvestorController::class, 'certificate']);
+        Route::get('/my/statements', [InvestorController::class, 'statements']);
+
+        // Advanced CRM workflow: investor polls.
+        Route::get('/polls', [PollController::class, 'index']);
+        Route::post('/polls/{poll}/vote', [PollController::class, 'vote']);
+
         Route::get('/reservations', [ReservationController::class, 'index']);
         Route::post('/reservations', [ReservationController::class, 'store']);
 
@@ -66,6 +78,16 @@ Route::prefix('v1')->group(function () {
             Route::get('/waitlist', [WaitlistController::class, 'index']);
             Route::get('/contact-messages', [InboxController::class, 'contactMessages']);
             Route::get('/project-submissions', [InboxController::class, 'projectSubmissions']);
+
+            // Advanced CRM workflow: closing-deadline tracking.
+            Route::get('/deadlines', [DeadlineController::class, 'index']);
+            Route::post('/projects/{project}/extend-closing', [DeadlineController::class, 'extend']);
+
+            // Advanced CRM workflow: referral commission pipeline.
+            Route::get('/referral-commissions', [ReferralCommissionController::class, 'index']);
+            Route::post('/referral-commissions/{commission}/approve', [ReferralCommissionController::class, 'approve']);
+            Route::post('/referral-commissions/{commission}/mark-payable', [ReferralCommissionController::class, 'markPayable']);
+            Route::post('/referral-commissions/{commission}/mark-paid', [ReferralCommissionController::class, 'markPaid']);
         });
     });
 });

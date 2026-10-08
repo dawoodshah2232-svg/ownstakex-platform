@@ -29,4 +29,16 @@ class Investment extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    /** @return HasMany<Certificate> */
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    /** @return HasMany<Statement> */
+    public function statements(): HasMany
+    {
+        return $this->hasMany(Statement::class);
+    }
 }
