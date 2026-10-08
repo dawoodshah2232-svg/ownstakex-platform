@@ -773,3 +773,98 @@ table.waterfall th:last-child,table.waterfall td:last-child{text-align:right}
 table.waterfall tr.strong td{font-weight:800}
 table.waterfall tr.strong td:last-child{color:var(--orange2)}
 .waterfall-note{color:var(--dim);font-size:13px;margin:12px 0 0}
+
+/* ===== Advanced CRM workflow port (deadlines, certificate, inventory) ===== */
+
+/* severity badge red variant for public/portal surfaces */
+.badge.err{background:rgba(220,38,38,.08);color:#b91c1c;border:1px solid rgba(220,38,38,.35)}
+
+/* admin filter chips */
+.adm-chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 18px}
+.adm-chip{background:#fff;border:1px solid #e5e7eb;color:#4b5563;font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s}
+.adm-chip:hover{border-color:#9ca3af}
+.adm-chip.on{background:#0E1C2F;color:#fff;border-color:#0E1C2F}
+
+/* extension history sub-rows */
+.adm-ext-row td{background:#fafbfc;font-size:12.5px;color:#6b7280}
+.adm-ext-row .adm-ext-item{margin:2px 0}
+
+/* project card deadline line — subtle */
+.p-close-line{display:flex;align-items:center;gap:7px;margin:10px 0 2px;font-size:12.5px;color:var(--muted)}
+.p-close-line svg{flex:none;color:var(--orange-deep)}
+.p-close-line .badge{margin-left:auto}
+
+/* project detail: closing countdown line */
+.p-deadline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 14px;background:rgba(14,26,43,.035);border:1px solid var(--line);border-radius:12px;font-size:13.5px;color:var(--muted)}
+.p-deadline svg{color:var(--orange-deep)}
+.p-deadline b{color:var(--ivory);font-weight:700}
+
+/* 5/95 payment split box */
+.pay-box{background:var(--orange-soft);border:1px solid rgba(249,115,22,.3);border-radius:14px;padding:14px 16px;margin:16px 0}
+.pay-box .pay-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13.5px;color:var(--muted);padding:5px 0}
+.pay-box .pay-row b{color:var(--ivory);font-weight:800;font-size:15px}
+.pay-box .pay-note{font-size:12px;color:var(--dim);margin-top:6px}
+.unit-stepper{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff}
+.unit-stepper button{border:0;background:none;width:30px;height:30px;font-size:16px;font-weight:700;color:var(--orange-deep);cursor:pointer}
+.unit-stepper button:disabled{opacity:.35;cursor:default}
+.unit-stepper b{min-width:34px;text-align:center;font-size:14px}
+
+/* unit inventory segmented bar */
+.seg-wrap{margin:18px 0 6px}
+.seg-bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:rgba(14,26,43,.08)}
+.seg-bar i{display:block;height:100%}
+.seg-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:12.5px;color:var(--muted)}
+.seg-legend span{display:inline-flex;align-items:center;gap:6px}
+.seg-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+/* poll cards */
+.poll-card{border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;background:#fff}
+.poll-card .poll-q{font-size:16.5px;font-weight:800;margin:2px 0 6px;color:var(--ivory)}
+.poll-card .poll-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin-bottom:14px}
+.poll-opts{display:flex;gap:10px;flex-wrap:wrap}
+.poll-result{margin:8px 0}
+.poll-result .bar-row{font-size:13px;color:var(--muted);margin-bottom:6px}
+.poll-voted{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#a87408;background:var(--gold-soft);border:1px solid rgba(217,154,31,.4);border-radius:999px;padding:7px 14px;margin-bottom:12px}
+
+/* ownership certificate modal */
+.cert-overlay{position:fixed;inset:0;z-index:90;background:rgba(10,18,32,.62);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.cert-box{background:#fff;border-radius:18px;max-width:740px;width:100%;overflow:hidden;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);margin:auto}
+.cert-paper{background:#fdfbf6;padding:8px}
+.cert-border{border:2px solid #c9a45c;outline:1px solid #e8dcc0;outline-offset:5px;padding:36px 34px;text-align:center;background:#fffdf8}
+.cert-logo{height:44px;width:auto;margin-bottom:6px}
+.cert-kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8a7a5c;font-weight:700}
+.cert-title{font-size:34px;font-weight:800;letter-spacing:-.02em;color:#0e1a2b;margin:10px 0 4px}
+.cert-no{font-size:13px;color:#8a7a5c;margin-bottom:18px}
+.cert-body{font-size:14px;color:#55657b;margin:14px 0 6px}
+.cert-name{font-size:30px;font-weight:800;color:#0e1a2b;letter-spacing:-.01em}
+.cert-id{font-size:12.5px;color:#8a7a5c;margin-top:4px}
+.cert-holding{font-size:22px;color:#0e1a2b;margin-top:4px}
+.cert-holding b{color:#c98a12}
+.cert-project{font-size:24px;font-weight:800;color:#0e1a2b}
+.cert-code{font-size:13px;color:#8a7a5c;margin-top:4px}
+.cert-meta{display:flex;justify-content:center;gap:36px;margin:22px 0 6px;flex-wrap:wrap}
+.cert-meta div span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#8a7a5c}
+.cert-meta div b{font-size:15px;color:#0e1a2b}
+.cert-fine{font-size:11.5px;color:#8d99ab;max-width:520px;margin:14px auto 0;line-height:1.6}
+.cert-sign{display:flex;justify-content:space-between;gap:24px;max-width:520px;margin:26px auto 0}
+.cert-sign>div{flex:1}
+.cert-sigline{border-bottom:1px solid #c9a45c;height:34px;margin-bottom:6px}
+.cert-sign span{font-size:11px;color:#8a7a5c}
+.cert-actions{display:flex;gap:10px;justify-content:flex-end;padding:18px 22px;border-top:1px solid var(--line2);background:#fff}
+@media(max-width:640px){
+  .cert-title{font-size:26px}
+  .cert-name{font-size:24px}
+  .cert-project{font-size:20px}
+  .cert-border{padding:26px 20px}
+  .cert-overlay{padding:12px}
+}
+/* print: only the certificate paper survives */
+@page{size:A4 landscape;margin:10mm}
+@media print{
+  body.cert-printing #root *{visibility:hidden}
+  body.cert-printing #root .cert-printable,body.cert-printing #root .cert-printable *{visibility:visible}
+  body.cert-printing .cert-overlay{position:absolute;inset:0;background:#fff;padding:0;overflow:visible;display:block;z-index:1}
+  body.cert-printing .cert-box{max-width:100%;box-shadow:none;border-radius:0;margin:0}
+  body.cert-printing .cert-actions{display:none!important}
+  body.cert-printing .cert-paper{padding:0}
+}

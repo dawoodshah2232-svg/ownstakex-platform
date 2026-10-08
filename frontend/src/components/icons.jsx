@@ -73,6 +73,12 @@ export const IconPlay = (p) => (
 export const IconAlert = (p) => (
   <I {...p}><path d="M12 3 2.5 20h19L12 3z" /><path d="M12 10v4m0 3v.5" /></I>
 );
+export const IconClock = (p) => (
+  <I {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></I>
+);
+export const IconLink = (p) => (
+  <I {...p}><path d="M10 14a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 10a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></I>
+);
 
 export const categoryIcon = (key, props) => {
   switch (key) {

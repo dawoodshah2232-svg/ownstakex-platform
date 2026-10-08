@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { IconArrow } from "./icons";
+import { IconArrow, IconClock } from "./icons";
+import { severityOf, daysUntil, daysLeftLabel, formatCloseDate, SEV_BADGE_CLASS } from "../utils/deadlines";
 
 export function formatAED(n) {
   if (n == null || n === "") return "—";
@@ -52,6 +53,9 @@ const Tag = () => (
 export default function ProjectCard({ project }) {
   const e = projectEconomics(project);
   const statusLabel = STATUS_LABELS[project.status] || project.status;
+  const closingDate = project.closing_date || project.campaign_ends;
+  const daysLeft = closingDate ? daysUntil(closingDate) : null;
+  const sev = daysLeft != null ? severityOf(daysLeft) : null;
   return (
     <Link to={`/projects/${project.slug}`} className="p-card">
       <div className="p-img">
@@ -64,6 +68,13 @@ export default function ProjectCard({ project }) {
           <span><Pin /> {project.location}</span>
           <span><Tag /> {project.category}</span>
         </div>
+        {sev && (
+          <div className="p-close-line">
+            <IconClock size={13} />
+            <span>Closes {formatCloseDate(closingDate)} · {daysLeftLabel(daysLeft)}</span>
+            <span className={`badge ${SEV_BADGE_CLASS[sev.key]}`}>{sev.label}</span>
+          </div>
+        )}
         {e.units ? (
           <div className="p-bars">
             <div className="bar-row"><span>Allocated</span><b style={{ color: "var(--orange2)" }}>{e.allocated}%</b></div>

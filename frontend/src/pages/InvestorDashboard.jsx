@@ -2,16 +2,23 @@ import { useEffect, useState } from "react";
 import client from "../api/client";
 import { DEMO_INVESTOR } from "../data/demo";
 import { useAuth } from "../context/AuthContext";
-import { IconDoc, IconWallet, IconChart, IconUsers, IconAlert, IconShield } from "../components/icons";
+import { IconDoc, IconWallet, IconChart, IconUsers, IconAlert, IconShield, IconCheck } from "../components/icons";
+import CertificateModal from "../components/CertificateModal";
+import { daysUntil, daysLeftLabel, formatCloseDate } from "../utils/deadlines";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: IconChart },
   { id: "reservations", label: "Reservations", icon: IconUsers },
   { id: "payments", label: "Payments", icon: IconWallet },
   { id: "investments", label: "Investments", icon: IconChart },
+  { id: "ownership", label: "Ownership", icon: IconShield },
+  { id: "statements", label: "Statements", icon: IconDoc },
+  { id: "voting", label: "Board & voting", icon: IconCheck },
   { id: "documents", label: "Documents", icon: IconDoc },
   { id: "profile", label: "Profile", icon: IconUsers },
 ];
+
+const DEFAULT_CERT_DISCLAIMER = "This portal certificate evidences a recorded position. Legal issuance sits in the project company register. Ownership % is of total project equity. Capital at risk — this certificate is not a redemption valuation.";
 
 const fmt = (n) => "AED " + Number(n || 0).toLocaleString("en-US");
 
@@ -62,21 +69,81 @@ const normalizeDashboard = (payload) => {
   };
 };
 
+const rowsOf = (payload) => {
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload)) return payload;
+  return [];
+};
+
+const fmtPct = (v) => (v === "" || v == null ? "—" : String(v).includes("%") ? v : `${v}%`);
+
+const normalizeOwnership = (o) => ({
+  id: o.id,
+  certId: o.certificate?.id || o.cert_id || o.id,
+  project_name: o.project?.name || o.project_name || "Project",
+  project_code: o.project?.code || o.project_code || "",
+  units: o.units || 0,
+  amount: o.amount || 0,
+  ownership_pct: o.ownership_pct ?? o.ownership ?? "",
+  acquired: shortDate(o.acquired_at || o.acquired),
+  cert_no: o.certificate?.cert_no || o.cert_no || "",
+});
+
+const normalizeStatement = (s) => ({
+  id: s.id,
+  project_name: s.project_name || s.project || "All holdings",
+  period: s.period || "",
+  version: s.version ?? 1,
+  correction_of_id: s.correction_of_id || null,
+  date: shortDate(s.created_at),
+});
+
+const normalizePoll = (p) => ({
+  id: p.id,
+  project_code: p.project_code || "",
+  project_name: p.project_name || p.project?.name || "",
+  question: p.question || p.title || "",
+  options: Array.isArray(p.options) ? p.options : [],
+  closes_at: p.closes_at || p.closes || "",
+  my_vote: p.my_vote ?? null,
+  votes: Array.isArray(p.votes) ? p.votes : null,
+});
+
 export default function InvestorDashboard() {
   const { user } = useAuth();
   const [tab, setTab] = useState("overview");
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const [crm, setCrm] = useState({ ownership: undefined, statements: undefined, polls: undefined });
+  const [cert, setCert] = useState(null);
+  const [certLoading, setCertLoading] = useState(null);
+  const [voting, setVoting] = useState(null);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
         const { data } = await client.get("/investor/dashboard");
-        if (alive) setData(normalizeDashboard(data.data || data));
+        if (!alive) return;
+        setData(normalizeDashboard(data.data || data));
+        // Advanced CRM endpoints — best effort, fetched independently of the main dashboard
+        const [o, s, p] = await Promise.all([
+          client.get("/my/ownership").then(({ data }) => rowsOf(data).map(normalizeOwnership)).catch(() => null),
+          client.get("/my/statements").then(({ data }) => rowsOf(data).map(normalizeStatement)).catch(() => null),
+          client.get("/polls").then(({ data }) => rowsOf(data).map(normalizePoll)).catch(() => null),
+        ]);
+        if (alive) setCrm({ ownership: o, statements: s, polls: p });
       } catch (err) {
         if (alive) {
-          if (!err.response) setData(DEMO_INVESTOR); // offline demo
+          if (!err.response) {
+            // offline demo — CRM tabs run on the demo dataset
+            setData(DEMO_INVESTOR);
+            setCrm({
+              ownership: (DEMO_INVESTOR.ownership || []).map(normalizeOwnership),
+              statements: (DEMO_INVESTOR.statements || []).map(normalizeStatement),
+              polls: (DEMO_INVESTOR.polls || []).map(normalizePoll),
+            });
+          }
           else if (err.response.status === 401) setError("Please log in again. Your session has expired.");
           else if (err.response.status === 403) setError("This account does not have investor dashboard access.");
           else setError("Could not load your dashboard. Please refresh the page or try again shortly.");
@@ -85,6 +152,78 @@ export default function InvestorDashboard() {
     })();
     return () => { alive = false; };
   }, []);
+
+  const ownershipRows = crm.ownership ?? [];
+  const statementRows = crm.statements ?? [];
+  const pollRows = crm.polls ?? [];
+
+  const openCertificate = async (row) => {
+    const certId = row.certId || row.id;
+    setCertLoading(row.id);
+    const fallback = {
+      holder_name: user?.name || "",
+      investor_label: "",
+      project_name: row.project_name,
+      project_code: row.project_code,
+      units: row.units,
+      ownership_pct: row.ownership_pct,
+      cert_no: row.cert_no,
+      acquired_date: row.acquired,
+      issued_at: "",
+      register_ref: row.project_code ? `REG-${row.project_code}-2026` : "",
+      disclaimer: DEFAULT_CERT_DISCLAIMER,
+    };
+    try {
+      if (certId) {
+        const { data } = await client.get(`/my/certificates/${certId}`);
+        const c = data?.data || data || {};
+        setCert({
+          holder_name: c.holder_name || fallback.holder_name,
+          investor_label: c.investor_label || "",
+          project_name: c.project_name || fallback.project_name,
+          project_code: c.project_code || fallback.project_code,
+          units: c.units ?? fallback.units,
+          ownership_pct: c.ownership_pct ?? fallback.ownership_pct,
+          cert_no: c.cert_no || fallback.cert_no,
+          acquired_date: shortDate(c.acquired_date) || fallback.acquired_date,
+          issued_at: shortDate(c.issued_at) || fallback.issued_at,
+          register_ref: c.register_ref || fallback.register_ref,
+          disclaimer: c.disclaimer || DEFAULT_CERT_DISCLAIMER,
+        });
+      } else {
+        setCert(fallback);
+      }
+    } catch {
+      setCert(fallback); // graceful: certificate built from the holding row
+    } finally {
+      setCertLoading(null);
+    }
+  };
+
+  const castVote = async (pollId, optionIndex) => {
+    const key = `${pollId}:${optionIndex}`;
+    setVoting(key);
+    const applyVote = (updater) =>
+      setCrm((c) => ({ ...c, polls: (c.polls || []).map((p) => (p.id === pollId ? updater(p) : p)) }));
+    try {
+      const { data } = await client.post(`/polls/${pollId}/vote`, { option_index: optionIndex });
+      const updated = data?.data || data;
+      if (updated && typeof updated === "object" && (updated.my_vote != null || updated.votes)) {
+        applyVote(() => normalizePoll({ ...updated, id: pollId }));
+      } else {
+        throw new Error("no poll payload");
+      }
+    } catch {
+      // offline/demo: record the vote locally with incremented counts
+      applyVote((p) => {
+        const votes = Array.isArray(p.votes) ? [...p.votes] : p.options.map(() => 0);
+        votes[optionIndex] = (Number(votes[optionIndex]) || 0) + 1;
+        return { ...p, my_vote: optionIndex, votes };
+      });
+    } finally {
+      setVoting(null);
+    }
+  };
 
   return (
     <div className="page">
@@ -110,6 +249,20 @@ export default function InvestorDashboard() {
               {tab === "reservations" && <Reservations rows={data.reservations} />}
               {tab === "payments" && <Payments rows={data.payments} />}
               {tab === "investments" && <Investments rows={data.investments} />}
+              {tab === "ownership" && (
+                <OwnershipTab
+                  rows={ownershipRows}
+                  loading={crm.ownership === undefined}
+                  onCertificate={openCertificate}
+                  certLoading={certLoading}
+                />
+              )}
+              {tab === "statements" && (
+                <StatementsTab rows={statementRows} loading={crm.statements === undefined} />
+              )}
+              {tab === "voting" && (
+                <VotingTab rows={pollRows} loading={crm.polls === undefined} onVote={castVote} voting={voting} />
+              )}
               {tab === "documents" && <Documents rows={data.documents} />}
               {tab === "profile" && <Profile user={user} />}
             </div>
@@ -118,6 +271,7 @@ export default function InvestorDashboard() {
           <div className="empty">Dashboard data is not available right now.</div>
         )}
       </div>
+      {cert && <CertificateModal cert={cert} onClose={() => setCert(null)} />}
     </div>
   );
 }
@@ -196,6 +350,151 @@ function Investments({ rows }) {
         </tbody>
       </table>
       <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 14 }}>Capital at risk. Current values are estimates, not guarantees.</p>
+    </div>
+  );
+}
+
+function OwnershipTab({ rows, loading, onCertificate, certLoading }) {
+  return (
+    <div className="panel">
+      <div className="panel-head"><h3>Ownership</h3><span className="badge mut">{rows.length}</span></div>
+      {loading ? (
+        <div className="empty"><span className="spinner" /> Loading holdings…</div>
+      ) : rows.length === 0 ? (
+        <div className="empty">No holdings yet. Your ownership certificates will appear here once investments are issued.</div>
+      ) : (
+        <table className="tbl">
+          <thead><tr><th>Project</th><th>Units</th><th>Ownership</th><th>Acquired</th><th>Certificate</th></tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id}>
+                <td><b>{r.project_name}</b>{r.project_code && <div className="dm">{r.project_code}</div>}</td>
+                <td>{r.units}</td>
+                <td>{fmtPct(r.ownership_pct)}</td>
+                <td>{r.acquired || "—"}</td>
+                <td>
+                  <button className="btn btn-ghost btn-sm" disabled={certLoading === r.id} onClick={() => onCertificate(r)}>
+                    {certLoading === r.id ? <><span className="spinner" /> Loading…</> : "Certificate"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 14 }}>
+        Ownership % is of total project equity. A portal certificate evidences a recorded position — legal issuance sits in the company register.
+      </p>
+    </div>
+  );
+}
+
+function StatementsTab({ rows, loading }) {
+  const versionLabel = (s) => {
+    let label = `v${s.version}`;
+    if (s.correction_of_id) {
+      const corrected = rows.find((r) => String(r.id) === String(s.correction_of_id));
+      label += corrected ? ` — corrects v${corrected.version}` : " — corrects an earlier statement";
+    }
+    return label;
+  };
+  return (
+    <div className="panel">
+      <div className="panel-head"><h3>Statements</h3><span className="badge mut">{rows.length}</span></div>
+      {loading ? (
+        <div className="empty"><span className="spinner" /> Loading statements…</div>
+      ) : rows.length === 0 ? (
+        <div className="empty">No statements yet. Monthly statements appear here after each reporting period.</div>
+      ) : (
+        <table className="tbl">
+          <thead><tr><th>Period</th><th>Project</th><th>Version</th><th>Published</th></tr></thead>
+          <tbody>
+            {rows.map((s) => (
+              <tr key={s.id}>
+                <td><b>{s.period || "—"}</b></td>
+                <td>{s.project_name}</td>
+                <td><span className={`badge ${s.correction_of_id ? "warn" : "ok"}`}>{versionLabel(s)}</span></td>
+                <td>{s.date || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 14 }}>
+        Corrections create a new version — published statements are never edited.
+      </p>
+    </div>
+  );
+}
+
+function VotingTab({ rows, loading, onVote, voting }) {
+  return (
+    <div>
+      <p style={{ color: "var(--dim)", fontSize: 14, marginBottom: 18 }}>
+        Investor votes are enabled only where the governing documents grant the right.
+      </p>
+      {loading ? (
+        <div className="panel"><div className="empty"><span className="spinner" /> Loading polls…</div></div>
+      ) : rows.length === 0 ? (
+        <div className="panel"><div className="empty">No polls at the moment. Open votes will appear here.</div></div>
+      ) : (
+        rows.map((p) => <PollCard key={p.id} poll={p} onVote={onVote} voting={voting} />)
+      )}
+    </div>
+  );
+}
+
+function PollCard({ poll, onVote, voting }) {
+  const days = poll.closes_at ? daysUntil(poll.closes_at) : null;
+  const closed = days != null && days < 0;
+  const total = (poll.votes || []).reduce((a, b) => a + (Number(b) || 0), 0);
+  const showResults = (poll.my_vote != null || closed) && Array.isArray(poll.votes);
+
+  return (
+    <div className="poll-card">
+      <div className="poll-meta">
+        <span className={`badge ${closed ? "mut" : "info"}`}>{closed ? "Closed" : "Open"}</span>
+        {poll.project_name && (
+          <span>{poll.project_name}{poll.project_code ? ` · ${poll.project_code}` : ""}</span>
+        )}
+        {poll.closes_at && (
+          <span>Closes {formatCloseDate(poll.closes_at)}{days != null && days >= 0 ? ` · ${daysLeftLabel(days)}` : ""}</span>
+        )}
+      </div>
+      <div className="poll-q">{poll.question}</div>
+      {poll.my_vote != null && poll.options[poll.my_vote] && (
+        <div className="poll-voted"><IconCheck size={16} /> You voted: {poll.options[poll.my_vote]}</div>
+      )}
+      {showResults ? (
+        <div>
+          {poll.options.map((opt, i) => {
+            const count = Number(poll.votes[i]) || 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            return (
+              <div className="poll-result" key={i}>
+                <div className="bar-row">
+                  <span>{opt}{poll.my_vote === i ? " — your vote" : ""}</span>
+                  <b>{count} ({pct}%)</b>
+                </div>
+                <div className="bar o"><i style={{ width: pct + "%" }} /></div>
+              </div>
+            );
+          })}
+        </div>
+      ) : !closed && poll.options.length > 0 ? (
+        <div className="poll-opts">
+          {poll.options.map((opt, i) => (
+            <button
+              key={i}
+              className="btn btn-ghost btn-sm"
+              disabled={voting === `${poll.id}:${i}`}
+              onClick={() => onVote(poll.id, i)}
+            >
+              {voting === `${poll.id}:${i}` ? <><span className="spinner" /> Recording…</> : opt}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

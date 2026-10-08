@@ -154,6 +154,39 @@ export const DEMO_INVESTOR = {
     { name: "Q3 2026 Performance Report", type: "Report", date: "2026-10-01" },
     { name: "KYC Verification Confirmation", type: "Compliance", date: "2026-09-15" },
   ],
+  ownership: [
+    {
+      id: "OWN-1",
+      project: { code: "MG-RS-01", name: "Marina Gate Residences" },
+      units: 5, amount: 25000, ownership_pct: "1.00",
+      acquired_at: "2026-09-12",
+      certificate: { id: "CRT-2026-0912", cert_no: "CRT-2026-0912", issued_at: "2026-09-22" },
+    },
+    {
+      id: "OWN-2",
+      project: { code: "AZ-YT-02", name: "Azure 88 Yacht Fraction" },
+      units: 2, amount: 20000, ownership_pct: "1.10",
+      acquired_at: "2026-09-05",
+      certificate: { id: "CRT-2026-0877", cert_no: "CRT-2026-0877", issued_at: "2026-09-20" },
+    },
+  ],
+  statements: [
+    { id: "ST-093", project_name: "All holdings", period: "September 2026", version: 2, correction_of_id: "ST-092", created_at: "2026-10-07" },
+    { id: "ST-092", project_name: "All holdings", period: "September 2026", version: 1, correction_of_id: null, created_at: "2026-10-01" },
+    { id: "ST-081", project_name: "All holdings", period: "August 2026", version: 1, correction_of_id: null, created_at: "2026-09-05" },
+  ],
+  polls: [
+    {
+      id: "VOTE-31", project_code: "AZ-YT-02", project_name: "Azure 88 Yacht Fraction",
+      question: "Approve Q4 2026 charter rate card",
+      options: ["Approve", "Reject", "Abstain"], closes_at: "2026-10-20", my_vote: null, votes: [12, 2, 1],
+    },
+    {
+      id: "VOTE-28", project_code: "MG-RS-01", project_name: "Marina Gate Residences",
+      question: "Approve August distribution of AED 84,000",
+      options: ["Approve", "Reject", "Abstain"], closes_at: "2026-09-12", my_vote: 0, votes: [92, 5, 3],
+    },
+  ],
 };
 
 export const DEMO_ADMIN = {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import client from "../api/client";
 import {
@@ -9,7 +9,11 @@ import { formatAED } from "../components/ProjectCard";
 import {
   IconChart, IconBuilding, IconDoc, IconAlert, IconCheck, IconClose,
   IconUpload, IconShield, IconUsers, IconWallet, IconMail, IconMenu, IconLogout,
+  IconClock, IconLink,
 } from "../components/icons";
+import {
+  SEVERITY_BANDS, severityOf, daysUntil, daysLeftLabel, formatCloseDate, SEV_ADM_VARIANT,
+} from "../utils/deadlines";
 
 /* ---------------- nav definition ---------------- */
 const NAV = [
@@ -18,9 +22,11 @@ const NAV = [
   { sec: "OPERATIONS" },
   { id: "projects", label: "Projects", icon: IconBuilding },
   { id: "campaigns", label: "Campaigns", icon: IconAlert },
+  { id: "deadlines", label: "Deadlines", icon: IconClock },
   { id: "treasury", label: "Treasury", icon: IconWallet },
   { id: "investors", label: "Investors", icon: IconUsers },
   { id: "compliance", label: "Compliance & KYC", icon: IconShield },
+  { id: "referrals", label: "Referrals", icon: IconLink },
   { id: "documents", label: "Documents", icon: IconDoc },
   { sec: "SYSTEM" },
   { id: "announcements", label: "Announcements", icon: IconMail },
@@ -31,6 +37,8 @@ const TITLES = {
   overview: ["Overview", "Platform health at a glance."],
   projects: ["Projects", "Create, edit and publish investment projects — media and documents included."],
   campaigns: ["Campaigns", "Live funding progress across all projects."],
+  deadlines: ["Deadline control center", "Every closing date, its severity and full extension history. Original dates are never overwritten — extensions are recorded and investors are notified."],
+  referrals: ["Referral commissions", "Commission ledger — Accrued → Approved → Payable → Paid. Every action is written to the audit trail."],
   treasury: ["Treasury", "Money in, money out — every dirham accounted for."],
   investors: ["Investors", "Registered investors and their KYC standing."],
   compliance: ["Compliance & KYC", "Review identity checks before anyone can invest."],
@@ -294,9 +302,11 @@ export default function AdminDashboard() {
               {tab === "overview" && <Overview data={data} goTab={goTab} />}
               {tab === "projects" && <ProjectsTab projects={data.projects} setData={setData} refresh={refreshProjects} />}
               {tab === "campaigns" && <CampaignsTab projects={data.projects} />}
+              {tab === "deadlines" && <DeadlinesTab />}
               {tab === "treasury" && <TreasuryTab data={data.treasury || DEMO_TREASURY} />}
               {tab === "investors" && <InvestorsTab rows={data.investors} />}
               {tab === "compliance" && <ComplianceTab rows={data.investors} setData={setData} />}
+              {tab === "referrals" && <ReferralsTab />}
               {tab === "documents" && <LibraryTab docs={data.documents?.length ? data.documents : (DEMO_ADMIN.library || [])} setData={setData} />}
               {tab === "announcements" && <AnnouncementsTab rows={data.announcements} setData={setData} />}
               {tab === "audit" && <AuditTab rows={data.audit || DEMO_AUDIT} />}
@@ -851,6 +861,237 @@ function AuditTab({ rows }) {
             </tbody>
           </table>
         </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ================= Deadlines ================= */
+const normalizeDeadline = (d) => {
+  let days = d.days_left ?? d.daysLeft;
+  if (days == null && d.closing_date) days = daysUntil(d.closing_date);
+  const sev = d.severity?.key
+    ? { key: d.severity.key, label: d.severity.label || d.severity.key }
+    : severityOf(days ?? 0);
+  return { ...d, days_left: days, severity: sev, extension_history: d.extension_history || [] };
+};
+
+function DeadlinesTab() {
+  const [rows, setRows] = useState(null); // null = loading
+  const [filter, setFilter] = useState("all");
+  const [busy, setBusy] = useState(null);
+  const [notice, setNotice] = useState("");
+  const [expanded, setExpanded] = useState({});
+
+  const load = async () => {
+    try {
+      const { data } = await client.get("/admin/deadlines");
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      setRows(list.map(normalizeDeadline));
+    } catch {
+      setRows([]); // graceful empty state when the endpoint is unavailable
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const extend = async (d) => {
+    const projectId = d.project_id || d.id;
+    setBusy(d.id);
+    setNotice("");
+    try {
+      await client.post(`/admin/projects/${projectId}/extend-closing`, { days: 7 });
+      setNotice("ok:Closing extended by 7 days — history recorded, investors notified.");
+      await load();
+    } catch (err) {
+      setNotice("err:" + (err.response?.data?.message || "Extension failed. Please try again."));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const visible = (rows || []).filter((d) => filter === "all" || d.severity.key === filter);
+
+  return (
+    <div>
+      <Notice notice={notice} clear={() => setNotice("")} />
+      <div className="adm-chips" role="group" aria-label="Severity filter">
+        <button className={`adm-chip${filter === "all" ? " on" : ""}`} onClick={() => setFilter("all")}>All</button>
+        {SEVERITY_BANDS.map((b) => (
+          <button key={b.key} className={`adm-chip${filter === b.key ? " on" : ""}`} onClick={() => setFilter(b.key)}>
+            {b.label}
+          </button>
+        ))}
+      </div>
+      <Panel>
+        {rows === null ? (
+          <div className="adm-empty"><span className="adm-spinner" /> Loading deadlines…</div>
+        ) : visible.length === 0 ? (
+          <div className="adm-empty">No deadlines in this view.</div>
+        ) : (
+          <div className="adm-table-wrap">
+            <table className="adm-table">
+              <thead><tr><th>Project</th><th>Closing date</th><th>Days left</th><th>Severity</th><th>Extensions</th><th></th></tr></thead>
+              <tbody>
+                {visible.map((d) => {
+                  const ext = d.extension_history;
+                  const open = !!expanded[d.id];
+                  const days = d.days_left;
+                  return (
+                    <Fragment key={d.id}>
+                      <tr>
+                        <td>
+                          <b>{d.name || d.project_name || "—"}</b>
+                          <div style={{ fontSize: 12.5, color: "#6b7280" }}>{d.code || d.project_code || ""}</div>
+                        </td>
+                        <td style={{ whiteSpace: "nowrap" }}>{formatCloseDate(d.closing_date)}</td>
+                        <td style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{daysLeftLabel(days)}</td>
+                        <td><Badge variant={SEV_ADM_VARIANT[d.severity.key] || "gray"}>{d.severity.label}</Badge></td>
+                        <td>
+                          {ext.length === 0 ? (
+                            <span style={{ color: "#9ca3af", fontSize: 13 }}>0</span>
+                          ) : (
+                            <button
+                              onClick={() => setExpanded((e) => ({ ...e, [d.id]: !e[d.id] }))}
+                              style={{ background: "none", border: 0, cursor: "pointer", color: "#0E1C2F", fontWeight: 700, fontSize: 13, textDecoration: "underline" }}
+                            >
+                              {ext.length} {open ? "▴" : "▾"}
+                            </button>
+                          )}
+                        </td>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                          {(days ?? 0) >= 0 ? (
+                            <Btn variant="secondary" disabled={busy === d.id} onClick={() => extend(d)}>
+                              {busy === d.id ? <span className="adm-spinner" /> : "Extend +7d"}
+                            </Btn>
+                          ) : (
+                            <span style={{ color: "#9ca3af" }}>—</span>
+                          )}
+                        </td>
+                      </tr>
+                      {open && ext.length > 0 && (
+                        <tr className="adm-ext-row">
+                          <td colSpan={6}>
+                            {ext.map((e, i) => (
+                              <div key={i} className="adm-ext-item">
+                                Extended: {e.from} → <b>{e.to}</b> · by {e.by} · {e.at}
+                              </div>
+                            ))}
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Panel>
+      <p style={{ fontSize: 12.5, color: "#6b7280", marginTop: 12 }}>
+        Original dates are never overwritten — extensions are recorded as new versions and investors are notified.
+      </p>
+    </div>
+  );
+}
+
+/* ================= Referral commissions ================= */
+const COMMISSION_BADGE = { accrued: "blue", approved: "green", payable: "amber", paid: "gray" };
+const COMMISSION_ACTIONS = {
+  accrued: [{ action: "approve", label: "Approve", variant: "primary" }],
+  approved: [{ action: "mark-payable", label: "Mark payable", variant: "secondary" }],
+  payable: [{ action: "mark-paid", label: "Mark paid", variant: "secondary" }],
+};
+
+function ReferralsTab() {
+  const [rows, setRows] = useState(null); // null = loading
+  const [busy, setBusy] = useState(null);
+  const [notice, setNotice] = useState("");
+
+  const load = async () => {
+    try {
+      const { data } = await client.get("/admin/referral-commissions");
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      setRows(list);
+    } catch {
+      setRows([]); // graceful empty state when the endpoint is unavailable
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const act = async (id, action) => {
+    setBusy(id + action);
+    setNotice("");
+    try {
+      await client.post(`/admin/referral-commissions/${id}/${action}`);
+      await load();
+    } catch (err) {
+      setNotice("err:" + (err.response?.data?.message || "Action failed. Please try again."));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const totals = (rows || []).reduce(
+    (acc, r) => {
+      const amt = Number(r.amount_cents ?? r.amount ?? 0) / (r.amount_cents != null ? 100 : 1);
+      acc.all += amt;
+      if (String(r.status).toLowerCase() === "payable") acc.payable += amt;
+      return acc;
+    },
+    { all: 0, payable: 0 }
+  );
+
+  return (
+    <div>
+      <Notice notice={notice} clear={() => setNotice("")} />
+      <div className="adm-alert" style={{ background: "#fff7ed", border: "1px solid rgba(249,115,22,.25)", color: "#9a3412", marginBottom: 16 }}>
+        <IconAlert size={18} />
+        <span style={{ flex: 1 }}>Commission becomes payable only after funding settlement.</span>
+      </div>
+      <div className="adm-stats" style={{ gridTemplateColumns: "repeat(2,1fr)" }}>
+        <StatCard icon={IconLink} tint="blue" value={formatAED(Math.round(totals.all))} label="Total commissions (all time)" />
+        <StatCard icon={IconWallet} tint="amber" value={formatAED(Math.round(totals.payable))} label="Currently payable" />
+      </div>
+      <Panel title="Commission ledger" sub="Accrued → Approved → Payable → Paid">
+        {rows === null ? (
+          <div className="adm-empty"><span className="adm-spinner" /> Loading commissions…</div>
+        ) : rows.length === 0 ? (
+          <div className="adm-empty">No commissions recorded yet.</div>
+        ) : (
+          <div className="adm-table-wrap">
+            <table className="adm-table">
+              <thead><tr><th>Referrer</th><th>Project</th><th>Amount</th><th>Status</th><th>Settled</th><th style={{ textAlign: "right" }}>Action</th></tr></thead>
+              <tbody>
+                {rows.map((r) => {
+                  const st = String(r.status || "accrued").toLowerCase();
+                  const amt = Number(r.amount_cents ?? r.amount ?? 0) / (r.amount_cents != null ? 100 : 1);
+                  const actions = COMMISSION_ACTIONS[st] || [];
+                  return (
+                    <tr key={r.id}>
+                      <td>
+                        <b>{r.referrer_name || "—"}</b>
+                        <div style={{ fontSize: 12.5, color: "#6b7280" }}>{r.referrer_email || ""}</div>
+                      </td>
+                      <td>{r.project_name || "—"}</td>
+                      <td style={{ fontWeight: 700 }}>{formatAED(Math.round(amt))}</td>
+                      <td><Badge variant={COMMISSION_BADGE[st] || "gray"}>{r.status}</Badge></td>
+                      <td style={{ color: "#6b7280", whiteSpace: "nowrap" }}>{r.settled_at ? String(r.settled_at).slice(0, 10) : "—"}</td>
+                      <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                        {actions.map((a) => (
+                          <Btn key={a.action} variant={a.variant} disabled={busy === r.id + a.action} onClick={() => act(r.id, a.action)}>
+                            {busy === r.id + a.action ? <span className="adm-spinner" /> : a.label}
+                          </Btn>
+                        ))}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Panel>
     </div>
   );
