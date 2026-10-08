@@ -99,29 +99,39 @@ jobs:
 
           tar -czf release.tar.gz -C release .
 
+      - name: Configure SSH
+        shell: bash
+        env:
+          CPANEL_SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$CPANEL_SSH_KEY" > ~/.ssh/cpanel_deploy_key
+          chmod 600 ~/.ssh/cpanel_deploy_key
+          ssh-keyscan -H "$CPANEL_HOST" >> ~/.ssh/known_hosts
+
       - name: Upload release
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USER }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          port: ${{ secrets.CPANEL_PORT }}
-          source: release.tar.gz
-          target: '~'
+        shell: bash
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_PORT: ${{ secrets.CPANEL_PORT }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+        run: |
+          sftp -P "$CPANEL_PORT" -i ~/.ssh/cpanel_deploy_key "$CPANEL_USER@$CPANEL_HOST" <<'SFTP_COMMANDS'
+          put release.tar.gz release.tar.gz
+          SFTP_COMMANDS
 
       - name: Activate release and run Laravel
-        uses: appleboy/ssh-action@v1.0.3
+        shell: bash
         env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_PORT: ${{ secrets.CPANEL_PORT }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
           CPANEL_PATH: ${{ secrets.CPANEL_PATH }}
           RUN_DB_SEED: ${{ secrets.RUN_DB_SEED }}
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USER }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          port: ${{ secrets.CPANEL_PORT }}
-          envs: CPANEL_PATH,RUN_DB_SEED
-          script_stop: true
-          script: |
+        run: |
+          TERM=xterm ssh -tt -p "$CPANEL_PORT" -i ~/.ssh/cpanel_deploy_key "$CPANEL_USER@$CPANEL_HOST" \
+            "export TERM=xterm; export CPANEL_PATH='$CPANEL_PATH'; export RUN_DB_SEED='$RUN_DB_SEED'; bash -se" <<'REMOTE_SCRIPT'
             set -e
 
             mkdir -p "$CPANEL_PATH"
@@ -142,3 +152,4 @@ jobs:
             php artisan view:cache
 
             rm -rf "$HOME/ownstakex-release" "$HOME/release.tar.gz"
+          REMOTE_SCRIPT
