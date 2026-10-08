@@ -15,6 +15,53 @@ const TABS = [
 
 const fmt = (n) => "AED " + Number(n || 0).toLocaleString("en-US");
 
+const shortDate = (value) => (value ? String(value).slice(0, 10) : "");
+
+const normalizeDashboard = (payload) => {
+  const investments = payload.investments || [];
+  const reservations = payload.reservations || [];
+  const payments = payload.recent_payments || payload.payments || [];
+  const documents = payload.documents || [];
+  const portfolio = payload.portfolio || {};
+
+  return {
+    overview: {
+      total_invested: portfolio.total_invested || 0,
+      active_stakes: portfolio.active_investments || investments.length,
+      lifetime_earnings: portfolio.lifetime_earnings || 0,
+      pending_reservations: reservations.filter((r) => r.status !== "confirmed").length,
+    },
+    reservations: reservations.map((r) => ({
+      id: r.id,
+      project: r.project?.name || r.project_name || "Project",
+      units: r.units,
+      amount: r.amount ?? ((Number(r.units) || 0) * (Number(r.unit_price) || 0)),
+      status: r.status,
+      date: shortDate(r.created_at),
+    })),
+    payments: payments.map((p) => ({
+      id: p.reference || p.id,
+      date: shortDate(p.created_at),
+      amount: p.amount,
+      method: p.method || "bank transfer",
+      status: p.status,
+    })),
+    investments: investments.map((i) => ({
+      project: i.project?.name || i.project_name || "Project",
+      stake: `${i.units || 0} unit${Number(i.units) === 1 ? "" : "s"}`,
+      invested: i.amount,
+      current_value: i.current_value || i.amount,
+      earnings: i.earnings || 0,
+    })),
+    documents: documents.map((d) => ({
+      name: d.title || d.name,
+      type: d.category || d.mime || "Document",
+      date: shortDate(d.created_at),
+      url: d.file_url || d.url,
+    })),
+  };
+};
+
 export default function InvestorDashboard() {
   const { user } = useAuth();
   const [tab, setTab] = useState("overview");
@@ -25,24 +72,14 @@ export default function InvestorDashboard() {
     let alive = true;
     (async () => {
       try {
-        const [ov, rs, py, iv, dc] = await Promise.all([
-          client.get("/investor/overview"),
-          client.get("/investor/reservations"),
-          client.get("/investor/payments"),
-          client.get("/investor/investments"),
-          client.get("/investor/documents"),
-        ]);
-        if (alive) setData({
-          overview: ov.data.data || ov.data,
-          reservations: rs.data.data || rs.data,
-          payments: py.data.data || py.data,
-          investments: iv.data.data || iv.data,
-          documents: dc.data.data || dc.data,
-        });
+        const { data } = await client.get("/investor/dashboard");
+        if (alive) setData(normalizeDashboard(data.data || data));
       } catch (err) {
         if (alive) {
           if (!err.response) setData(DEMO_INVESTOR); // offline demo
-          else setError("Could not load your dashboard.");
+          else if (err.response.status === 401) setError("Please log in again. Your session has expired.");
+          else if (err.response.status === 403) setError("This account does not have investor dashboard access.");
+          else setError("Could not load your dashboard. Please refresh the page or try again shortly.");
         }
       }
     })();
@@ -57,9 +94,9 @@ export default function InvestorDashboard() {
           <p>Your stakes, reservations and documents in one place.</p>
         </div>
         {error && <div className="alert error"><IconAlert size={18} /> {error}</div>}
-        {!data ? (
+        {!data && !error ? (
           <div className="empty"><span className="spinner" /> Loading your dashboard…</div>
-        ) : (
+        ) : data ? (
           <div className="dash">
             <aside className="dash-side" aria-label="Dashboard sections">
               {TABS.map((t) => (
@@ -77,6 +114,8 @@ export default function InvestorDashboard() {
               {tab === "profile" && <Profile user={user} />}
             </div>
           </div>
+        ) : (
+          <div className="empty">Dashboard data is not available right now.</div>
         )}
       </div>
     </div>
