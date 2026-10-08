@@ -4,6 +4,7 @@ import client from "../api/client";
 import { DEMO_POSTS } from "../data/demo";
 import { IconArrow, IconAlert } from "../components/icons";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 export default function Blog() {
   const [posts, setPosts] = useState(null);
@@ -23,6 +24,7 @@ export default function Blog() {
 
   return (
     <div className="page">
+      <PageHead title='Blog' description='Insights on fractional investing, real assets and platform updates from the OwnStakeX team.' path="/blog" breadcrumbs={[HOME_CRUMB, { name: "Blog", path: "/blog" }]} />
       <div className="container">
         <div className="page-head">
           <h1>Insights</h1>

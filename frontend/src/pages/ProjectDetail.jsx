@@ -6,6 +6,7 @@ import { formatAED, progressPct } from "../components/ProjectCard";
 import { IconAlert, IconArrow, IconCheck, IconClock, IconDoc, IconPin, IconShield } from "../components/icons";
 import { severityOf, daysUntil, daysLeftLabel, formatCloseDate, SEV_BADGE_CLASS } from "../utils/deadlines";
 import { useAuth } from "../context/AuthContext";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -46,10 +47,11 @@ export default function ProjectDetail() {
 
   if (error) {
     return (
+      <><PageHead title="Project not found" noindex />
       <div className="page"><div className="container">
         <div className="alert error"><IconAlert size={18} /> {error}</div>
         <Link to="/projects" className="btn btn-ghost">Back to projects</Link>
-      </div></div>
+      </div></div></>
     );
   }
   if (!project) {
@@ -94,6 +96,12 @@ export default function ProjectDetail() {
 
   return (
     <div className="page">
+      <PageHead
+      title={project.name}
+      description={project.teaser || project.summary || `Invest in ${project.name} — fractional ownership on OwnStakeX.`}
+      path={`/projects/${slug}`}
+      breadcrumbs={[HOME_CRUMB, { name: "Projects", path: "/projects" }, { name: project.name, path: `/projects/${slug}` }]}
+      />
       <div className="container">
         <Link to="/projects" className="btn btn-ghost btn-sm" style={{ marginBottom: 26 }}>
           <IconArrow size={15} style={{ transform: "rotate(180deg)" }} /> All projects
@@ -101,7 +109,7 @@ export default function ProjectDetail() {
         <div className="detail-grid">
           <div>
             <div className="p-img" style={{ borderRadius: 20 }}>
-              <img src={project.image || "/hero.jpg"} alt={project.name} style={{ borderRadius: 20 }} />
+              <img src={project.image || "/hero.webp"} alt={project.name} style={{ borderRadius: 20 }} />
             </div>
             <div className="prose" style={{ marginTop: 30 }}>
               <h2>About this opportunity</h2>

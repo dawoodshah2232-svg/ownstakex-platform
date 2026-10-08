@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import client from "../api/client";
 import { DEMO_POSTS } from "../data/demo";
 import { IconAlert, IconArrow, IconShield } from "../components/icons";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -24,10 +25,11 @@ export default function BlogPost() {
 
   if (error) {
     return (
+      <><PageHead title="Article not found" noindex />
       <div className="page"><div className="container">
         <div className="alert error"><IconAlert size={18} /> {error}</div>
         <Link to="/blog" className="btn btn-ghost">Back to insights</Link>
-      </div></div>
+      </div></div></>
     );
   }
   if (!post) {
@@ -42,6 +44,12 @@ export default function BlogPost() {
 
   return (
     <div className="page">
+      <PageHead
+      title={post.title}
+      description={post.excerpt || `Read ${post.title} on the OwnStakeX blog.`}
+      path={`/blog/${slug}`}
+      breadcrumbs={[HOME_CRUMB, { name: "Blog", path: "/blog" }, { name: post.title, path: `/blog/${slug}` }]}
+      />
       <div className="container">
         <Link to="/blog" className="btn btn-ghost btn-sm" style={{ marginBottom: 26 }}>
           <IconArrow size={15} style={{ transform: "rotate(180deg)" }} /> All articles

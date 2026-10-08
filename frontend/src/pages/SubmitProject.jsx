@@ -2,6 +2,7 @@ import { useState } from "react";
 import client from "../api/client";
 import { IconAlert, IconCheck } from "../components/icons";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 const ASSET_TYPES = ["Commercial property", "Hospitality", "Maritime / charter", "Logistics", "Other income asset"];
 const EMPTY = { name: "", email: "", company: "", role: "", asset_type: "", funding_aed: "", location: "", description: "", files: "", consent: false };
@@ -41,6 +42,7 @@ export default function SubmitProject() {
 
   return (
     <div className="page">
+      <PageHead title='Submit a Project' description='Submit a project for listing on OwnStakeX — our team reviews every opportunity.' path="/submit-project" breadcrumbs={[HOME_CRUMB, { name: "Submit a Project", path: "/submit-project" }]} />
       <div className="container">
         <div className="page-head">
           <div className="kicker">For operators &amp; sponsors</div>

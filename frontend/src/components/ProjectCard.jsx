@@ -34,7 +34,7 @@ export function progressPct(p) {
 }
 
 export function projectImage(p) {
-  return p.cover_image || p.images?.[0]?.url || p.image || "/hero.jpg";
+  return p.cover_image || p.images?.[0]?.url || p.image || "/hero.webp";
 }
 
 const STATUS_LABELS = { funding: "Funding", coming_soon: "Coming soon", evaluation: "Evaluation", closing: "Closing", operating: "Operating" };

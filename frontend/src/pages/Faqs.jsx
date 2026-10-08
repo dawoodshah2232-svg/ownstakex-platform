@@ -2,11 +2,13 @@ import { useState } from "react";
 import { DEMO_FAQS } from "../data/demo";
 import { IconArrow } from "../components/icons";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 export default function Faqs() {
   const [open, setOpen] = useState(0);
   return (
     <div className="page">
+      <PageHead title='FAQs' description='Frequently asked questions about fractional investing on OwnStakeX.' path="/faqs" breadcrumbs={[HOME_CRUMB, { name: "FAQs", path: "/faqs" }]} />
       <div className="container">
         <div className="page-head">
           <h1>Frequently asked questions</h1>

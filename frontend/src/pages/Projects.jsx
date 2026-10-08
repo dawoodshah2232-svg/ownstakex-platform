@@ -4,6 +4,7 @@ import { DEMO_PROJECTS } from "../data/demo";
 import { COUNTRIES } from "../data/countries";
 import ProjectCard from "../components/ProjectCard";
 import { IconAlert } from "../components/icons";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 const STATUS_LABELS = { funding: "Funding", evaluation: "Evaluation", closing: "Closing", operating: "Operating", coming_soon: "Coming soon" };
 
@@ -257,6 +258,7 @@ function Waitlist({ country, onBack }) {
 
   return (
     <div className="card cx-waitlist" ref={ref}>
+      <PageHead title='Investment Projects' description='Browse curated fractional investment opportunities in real estate, yachts, hospitality and businesses on OwnStakeX.' path="/projects" breadcrumbs={[HOME_CRUMB, { name: "Projects", path: "/projects" }]} />
       {!done ? (
         <>
           <div className="cx-globe">

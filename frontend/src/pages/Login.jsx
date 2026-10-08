@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { IconAlert } from "../components/icons";
+import PageHead from "../components/PageHead";
 
 export default function Login() {
   const { login, isAuthenticated, isAdmin } = useAuth();
@@ -36,6 +37,7 @@ export default function Login() {
 
   return (
     <div className="page">
+      <PageHead title="Log in" noindex />
       <div className="container">
         <div className="form-card">
           <img src="/logo.png" alt="OwnStakeX" className="logo-img" style={{ marginBottom: 22 }} />

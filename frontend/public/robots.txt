@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /investor
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://ownstakex.com/sitemap.xml

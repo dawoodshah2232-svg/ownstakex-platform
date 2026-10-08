@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { IconArrow, IconShield } from "../components/icons";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 const svg = (children) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">{children}</svg>
@@ -27,12 +28,13 @@ const GOOD_TO_KNOW = [
 export default function HowItWorks() {
   return (
     <>
+      <PageHead title='How It Works' description='From interest to income in eight steps. How fractional investing works on OwnStakeX — reserve, pay, operate, earn.' path="/how-it-works" breadcrumbs={[HOME_CRUMB, { name: "How It Works", path: "/how-it-works" }]} />
       <section className="hiw-band hiw-page">
         <div className="container">
           <Reveal>
             <div className="hiw-head">
               <div className="kicker hiw-kicker">The investor journey</div>
-              <h2>From interest to income,<br />in eight steps.</h2>
+              <h1>From interest to income,<br />in eight steps.</h1>
               <p>No jargon, no blurred lines. You will always know what is a hold, what is a commitment, and what creates ownership.</p>
             </div>
           </Reveal>

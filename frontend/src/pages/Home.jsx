@@ -5,6 +5,7 @@ import { DEMO_PROJECTS, DEMO_POSTS, CATEGORIES } from "../data/demo";
 import { categoryIcon, IconArrow, IconUsers, IconChart, IconShield, IconPlay } from "../components/icons";
 import ProjectCard from "../components/ProjectCard";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 const STATS = [
   { icon: <IconUsers size={26} />, value: "500+", label: "Registered investors" },
@@ -43,9 +44,10 @@ export default function Home() {
 
   return (
     <>
+      <PageHead title={undefined} description='Own a stake in real opportunities. Curated fractional investments in real estate, yachts, hospitality and operating businesses — by Bridging Investment LLC, Dubai.' path="/" breadcrumbs={[HOME_CRUMB]} />
       {/* HERO — full-bleed image, copy overlaid left (matches reference) */}
       <section className="hero-full">
-        <div className="hf-bg" aria-hidden="true"><img src="/hero.jpg" alt="" fetchPriority="high" /></div>
+        <div className="hf-bg" aria-hidden="true"><img src="/hero.webp" alt="" fetchPriority="high" /></div>
         <div className="hero-veil" aria-hidden="true" />
         <div className="hero-ribbons" aria-hidden="true"><span /><span /><span /></div>
         <div className="container hero-copy">
@@ -93,7 +95,7 @@ export default function Home() {
             {CATEGORIES.map((c, i) => (
               <Reveal key={c.name} delay={i === 1 ? "d1" : i === 2 ? "d2" : i === 3 ? "d3" : ""}>
                 <Link to="/projects" className="cat-card">
-                  <div className="cat-img"><img src="/hero.jpg" alt={c.name} loading="lazy" /></div>
+                  <div className="cat-img"><img src="/hero.webp" alt={c.name} loading="lazy" /></div>
                   <div className="cat-body">
                     <span className="cat-ico" style={{ color: "#fff" }}>{categoryIcon(c.icon, { size: 24 })}</span>
                     <div><h3>{c.name}</h3><p>{c.desc}</p></div>
@@ -172,7 +174,7 @@ export default function Home() {
               {posts.slice(0, 3).map((p, i) => (
                 <Reveal key={p.id || p.slug} delay={`d${i}`}>
                   <Link to={`/blog/${p.slug}`} className="b-card">
-                    <div className="b-img"><img src={p.image || p.cover_image || "/hero.jpg"} alt="" loading="lazy" /></div>
+                    <div className="b-img"><img src={p.image || p.cover_image || "/hero.webp"} alt="" loading="lazy" /></div>
                     <div className="b-body">
                       {(p.tag || p.category) && <span className="b-pill">{p.tag || p.category}</span>}
                       <h3>{p.title}</h3>

@@ -1,4 +1,5 @@
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 const SECTIONS = [
   {
@@ -69,6 +70,7 @@ function FeeSchedule() {
 export default function Legal() {
   return (
     <div className="page">
+      <PageHead title='Legal & Policies' description='Terms of use, fee schedule and policies for the OwnStakeX platform.' path="/legal" breadcrumbs={[HOME_CRUMB, { name: "Legal", path: "/legal" }]} />
       <div className="container">
         <div className="page-head">
           <h1>Legal</h1>

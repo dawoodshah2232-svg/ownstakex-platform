@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { IconArrow, IconShield, IconUsers } from "../components/icons";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 export default function About() {
   return (
     <div className="page">
+      <PageHead title='About' description='OwnStakeX.com is owned by Bridging Investment LLC, Dubai, UAE. Premium real-world assets, made investable for everyone.' path="/about" breadcrumbs={[HOME_CRUMB, { name: "About", path: "/about" }]} />
       <div className="container">
         <div className="page-head">
           <h1>About OwnStakeX</h1>

@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { IconDoc, IconWallet, IconChart, IconUsers, IconAlert, IconShield, IconCheck } from "../components/icons";
 import CertificateModal from "../components/CertificateModal";
 import { daysUntil, daysLeftLabel, formatCloseDate } from "../utils/deadlines";
+import PageHead from "../components/PageHead";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: IconChart },
@@ -517,6 +518,7 @@ function Documents({ rows }) {
 function Profile({ user }) {
   return (
     <div className="panel" style={{ maxWidth: 560 }}>
+      <PageHead title="Investor dashboard" noindex />
       <div className="panel-head"><h3>Profile</h3><span className="badge ok">Verified</span></div>
       <div className="field"><label>Name</label><input defaultValue={user?.name || ""} /></div>
       <div className="field"><label>Email</label><input defaultValue={user?.email || ""} disabled /></div>

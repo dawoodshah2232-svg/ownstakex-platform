@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import client from "../api/client";
 import { IconAlert, IconArrow, IconCheck, IconMail, IconPin } from "../components/icons";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", subject: "General enquiry", message: "" });
@@ -33,6 +34,7 @@ export default function Contact() {
 
   return (
     <div className="page">
+      <PageHead title='Contact' description='Contact the OwnStakeX team — questions about projects, investing or partnerships.' path="/contact" breadcrumbs={[HOME_CRUMB, { name: "Contact", path: "/contact" }]} />
       <div className="container">
         <div className="page-head">
           <h1>Contact us</h1>

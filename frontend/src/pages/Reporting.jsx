@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { IconArrow, IconDoc, IconShield } from "../components/icons";
 import Reveal from "../components/Reveal";
+import PageHead, { HOME_CRUMB } from "../components/PageHead";
 
 /** [line, AED, highlight] — illustrative monthly waterfall (100 equal units). */
 const WATERFALL = [
@@ -27,6 +28,7 @@ const REPORTS = [
 export default function Reporting() {
   return (
     <div className="page">
+      <PageHead title='Investor Reporting' description='How OwnStakeX reports to investors — monthly reports, statements and distribution notices.' path="/reporting" breadcrumbs={[HOME_CRUMB, { name: "Reporting", path: "/reporting" }]} />
       <div className="container">
         <div className="page-head">
           <h1>Reporting & transparency</h1>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { IconAlert } from "../components/icons";
+import PageHead from "../components/PageHead";
 
 export default function Register() {
   const { register } = useAuth();
@@ -30,6 +31,7 @@ export default function Register() {
 
   return (
     <div className="page">
+      <PageHead title="Create account" noindex />
       <div className="container">
         <div className="form-card">
           <img src="/logo.png" alt="OwnStakeX" className="logo-img" style={{ marginBottom: 22 }} />
