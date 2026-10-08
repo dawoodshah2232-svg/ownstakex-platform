@@ -1,0 +1,144 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: cpanel-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        shell: bash
+        env:
+          FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        run: |
+          cd frontend
+          if [ -n "$FRONTEND_ENV" ]; then
+            printf '%s\n' "$FRONTEND_ENV" > .env.production
+          fi
+          if [ -n "$VITE_API_URL" ]; then
+            printf '\nVITE_API_URL=%s\n' "$VITE_API_URL" >> .env.production
+          fi
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+          npm run build
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, ctype, fileinfo, json, openssl, pdo, pdo_mysql, tokenizer, xml
+          coverage: none
+
+      - name: Install backend dependencies
+        shell: bash
+        run: |
+          cd backend
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Prepare release
+        shell: bash
+        env:
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+        run: |
+          rm -rf release release.tar.gz
+          mkdir -p release/backend
+
+          rsync -a backend/ release/backend/ \
+            --exclude='.env' \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/framework/cache/*' \
+            --exclude='storage/framework/sessions/*' \
+            --exclude='storage/framework/views/*'
+
+          rsync -a frontend/dist/ release/
+
+          cat > release/.htaccess <<'HTACCESS'
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+
+            RewriteRule ^api(/.*)?$ backend/public/index.php [L,QSA]
+            RewriteRule ^sanctum(/.*)?$ backend/public/index.php [L,QSA]
+
+            RewriteCond %{REQUEST_FILENAME} -f [OR]
+            RewriteCond %{REQUEST_FILENAME} -d
+            RewriteRule ^ - [L]
+
+            RewriteRule ^ index.html [L]
+          </IfModule>
+          HTACCESS
+
+          if [ -n "$BACKEND_ENV" ]; then
+            printf '%s\n' "$BACKEND_ENV" > release/backend/.env
+          fi
+
+          tar -czf release.tar.gz -C release .
+
+      - name: Upload release
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_PORT }}
+          source: release.tar.gz
+          target: '~'
+
+      - name: Activate release and run Laravel
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          CPANEL_PATH: ${{ secrets.CPANEL_PATH }}
+          RUN_DB_SEED: ${{ secrets.RUN_DB_SEED }}
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_PORT }}
+          envs: CPANEL_PATH,RUN_DB_SEED
+          script_stop: true
+          script: |
+            set -e
+
+            mkdir -p "$CPANEL_PATH"
+            rm -rf "$HOME/ownstakex-release"
+            mkdir -p "$HOME/ownstakex-release"
+            tar -xzf "$HOME/release.tar.gz" -C "$HOME/ownstakex-release"
+            rsync -a --delete "$HOME/ownstakex-release/" "$CPANEL_PATH/"
+
+            cd "$CPANEL_PATH/backend"
+            mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+            php artisan migrate --force
+            if [ "$RUN_DB_SEED" = "true" ]; then
+              php artisan db:seed --force
+            fi
+            php artisan storage:link || true
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            rm -rf "$HOME/ownstakex-release" "$HOME/release.tar.gz"
