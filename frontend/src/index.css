@@ -650,3 +650,54 @@ video{max-width:100%}
 }
 @media(max-width:640px){.adm-stats{grid-template-columns:1fr 1fr}.adm-h1{font-size:24px}}
 @media(max-width:640px){.adm-form-grid{grid-template-columns:1fr !important}}
+
+/* ============ premium How It Works band (homepage redesign) ============ */
+.hiw-band{position:relative;overflow:hidden;background:linear-gradient(155deg,#0B1526 0%,#0E1C2F 55%,#0A1322 100%);padding:104px 0;color:#fff}
+.hiw-band::before{content:"";position:absolute;width:700px;height:700px;left:-240px;top:-260px;background:radial-gradient(circle,rgba(249,115,22,.14),transparent 65%);pointer-events:none}
+.hiw-band::after{content:"";position:absolute;width:560px;height:560px;right:-180px;bottom:-220px;background:radial-gradient(circle,rgba(249,115,22,.09),transparent 65%);pointer-events:none}
+.hiw-head{position:relative;text-align:center;max-width:660px;margin:0 auto 60px}
+.hiw-head .hiw-kicker{color:#ff9e2c;justify-content:center}
+.hiw-head h2{color:#fff;font-size:clamp(30px,4.4vw,46px);font-weight:800;letter-spacing:-.025em;margin-bottom:14px}
+.hiw-head p{color:rgba(255,255,255,.62);font-size:16.5px;line-height:1.6}
+.hiw-grid{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.hiw-grid::before{content:"";position:absolute;left:5%;right:5%;top:128px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.45) 20%,rgba(249,115,22,.45) 80%,transparent);pointer-events:none}
+.hiw-grid > .reveal{display:flex}
+.hiw-card{position:relative;flex:1;background:#101F36;border:1px solid rgba(255,255,255,.09);border-radius:22px;padding:28px 22px;overflow:hidden;transition:transform .35s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .3s}
+.hiw-card:hover{transform:translateY(-6px);border-color:rgba(249,115,22,.45);box-shadow:0 24px 50px -20px rgba(0,0,0,.6)}
+.hiw-num{display:block;font-size:54px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:20px;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.25);transition:color .3s}
+.hiw-card:hover .hiw-num{color:rgba(249,115,22,.95);-webkit-text-stroke-color:transparent}
+.hiw-ico{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.32);color:#ff9e2c;margin-bottom:18px}
+.hiw-card b{display:block;color:#fff;font-size:17px;font-weight:750;letter-spacing:-.01em}
+.hiw-card p{color:rgba(255,255,255,.6);font-size:13.5px;margin-top:6px;line-height:1.55}
+.hiw-cta{position:relative;text-align:center;margin-top:44px}
+.btn-ghost-dark{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:14px 26px;font-size:15px;font-weight:650;text-decoration:none;transition:all .25s cubic-bezier(.22,1,.36,1)}
+.btn-ghost-dark:hover{border-color:var(--orange);color:#ffb066;transform:translateY(-2px)}
+@media(max-width:1024px){
+  .hiw-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin:0 -4%;padding:6px 4% 22px;scrollbar-width:none}
+  .hiw-grid::-webkit-scrollbar{display:none}
+  .hiw-grid::before{display:none}
+  .hiw-grid > .reveal{flex:0 0 min(78%,320px);scroll-snap-align:center}
+}
+@media(max-width:640px){
+  .hiw-band{padding:72px 0}
+  .hiw-head{margin-bottom:40px}
+  .hiw-num{font-size:44px}
+}
+
+/* ============ premium editorial blog cards (homepage) ============ */
+.grid-3 > .reveal{display:flex}
+.b-card{display:flex;flex-direction:column;flex:1;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;text-decoration:none;box-shadow:0 12px 32px -24px rgba(14,26,43,.4);transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,border-color .3s;min-width:0}
+.b-card:hover{transform:translateY(-4px);box-shadow:0 26px 54px -22px rgba(14,26,43,.38);border-color:rgba(249,115,22,.35)}
+.b-img{aspect-ratio:16/9;overflow:hidden;background:#ece7da;flex:none}
+.b-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.22,1,.36,1)}
+.b-card:hover .b-img img{transform:scale(1.05)}
+.b-body{padding:22px;display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+.b-pill{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-deep);background:var(--orange-soft);border:1px solid rgba(249,115,22,.28);padding:5px 12px;border-radius:999px;white-space:nowrap}
+.b-body h3{font-size:20px;line-height:1.35;font-weight:750;letter-spacing:-.015em;color:var(--navy);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:break-word}
+.b-body p{font-size:15px;line-height:1.6;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:break-word}
+.b-meta{margin-top:auto;padding-top:8px;font-size:13px;color:var(--dim)}
+
+/* ============ featured projects polish ============ */
+.p-card{border-radius:22px;box-shadow:0 14px 36px -24px rgba(14,26,43,.4)}
+.p-card:hover{transform:translateY(-7px);box-shadow:0 30px 60px -26px rgba(14,26,43,.42);border-color:rgba(249,115,22,.45)}
+.p-body h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:break-word}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import client from "../api/client";
-import { DEMO_PROJECTS, CATEGORIES, STEPS } from "../data/demo";
+import { DEMO_PROJECTS, DEMO_POSTS, CATEGORIES } from "../data/demo";
 import { categoryIcon, IconArrow, IconUsers, IconChart, IconShield, IconPlay } from "../components/icons";
 import ProjectCard from "../components/ProjectCard";
 import Reveal from "../components/Reveal";
@@ -13,13 +13,30 @@ const STATS = [
   { icon: <IconShield size={26} />, value: "100%", label: "Transparent reporting" },
 ];
 
+const svg = (children) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">{children}</svg>
+);
+
+/** The investor journey in five steps (homepage How It Works band). */
+const HIW_STEPS = [
+  { n: "01", title: "Explore", text: "Browse verified opportunities", icon: svg(<><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>) },
+  { n: "02", title: "Invest", text: "Select your ownership stake", icon: svg(<><path d="M6 2.5h8L19 8v13.5H6z" /><path d="M14 2.5V8h5" /><path d="M9 12.5h6M9 16h6" /></>) },
+  { n: "03", title: "Own", text: "Track performance", icon: svg(<><path d="M5 20v-7M11 20V6M17 20v-11" /><path d="M3 20h18" /></>) },
+  { n: "04", title: "Earn", text: "Receive distributions", icon: svg(<><rect x="2.5" y="6" width="19" height="13" rx="2.5" /><path d="M2.5 10h19" /><path d="M6 15h4" /></>) },
+  { n: "05", title: "Exit", text: "Sell your stake when eligible", icon: svg(<><path d="M14 3.5h-8v17h8" /><path d="M14 12h9m-3-3 3 3-3 3" /></>) },
+];
+
 export default function Home() {
   const [projects, setProjects] = useState(DEMO_PROJECTS);
+  const [posts, setPosts] = useState(DEMO_POSTS);
 
   useEffect(() => {
     let alive = true;
     client.get("/projects?featured=1&per_page=3")
       .then(({ data }) => { if (alive && Array.isArray(data.data)) setProjects(data.data); })
+      .catch(() => { /* demo fallback stays */ });
+    client.get("/blog")
+      .then(({ data }) => { if (alive && Array.isArray(data.data) && data.data.length) setPosts(data.data); })
       .catch(() => { /* demo fallback stays */ });
     return () => { alive = false; };
   }, []);
@@ -89,35 +106,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HOW IT WORKS — 5 steps */}
-      <section className="section" style={{ background: "var(--bg2)" }}>
+      {/* HOW IT WORKS — premium dark band, 5 glassy cards (spec: homepage redesign) */}
+      <section className="hiw-band">
         <div className="container">
           <Reveal>
-            <div className="section-head center">
-              <div className="kicker" style={{ justifyContent: "center" }}>How it works</div>
-              <h2>A smarter way to invest</h2>
-              <p>From sign-up to your first distribution in five clear steps.</p>
+            <div className="hiw-head">
+              <div className="kicker hiw-kicker">How It Works</div>
+              <h2>A Smarter Way to Invest</h2>
+              <p>We connect investors with premium opportunities through structured, transparent and secure ownership.</p>
             </div>
           </Reveal>
+          <div className="hiw-grid">
+            {HIW_STEPS.map((s, i) => (
+              <Reveal key={s.n} delay={`d${i}`}>
+                <div className="hiw-card">
+                  <span className="hiw-num" aria-hidden="true">{s.n}</span>
+                  <span className="hiw-ico" aria-hidden="true">{s.icon}</span>
+                  <b>{s.title}</b>
+                  <p>{s.text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
           <Reveal>
-            <div className="steps-row">
-              {STEPS.map((s, i) => (
-                <span key={s.n} style={{ display: "contents" }}>
-                  <div className="step-h">
-                    <span className="s-ico" style={{ color: "var(--orange)" }}><IconChart size={22} /></span>
-                    <div>
-                      <div className="s-top"><span className="s-num">{s.n}</span><b>{s.title}</b></div>
-                      <p>{s.text}</p>
-                    </div>
-                  </div>
-                  {i < STEPS.length - 1 && <span className="s-arr"><IconArrow size={20} /></span>}
-                </span>
-              ))}
-            </div>
-          </Reveal>
-          <Reveal>
-            <div style={{ textAlign: "center", marginTop: 40 }}>
-              <Link to="/how-it-works" className="btn btn-ghost">Learn more <IconArrow size={16} /></Link>
+            <div className="hiw-cta">
+              <Link to="/how-it-works" className="btn-ghost-dark">Full journey explained <IconArrow size={16} /></Link>
             </div>
           </Reveal>
         </div>
@@ -143,6 +156,36 @@ export default function Home() {
           </Reveal>
         </div>
       </section>
+
+      {/* FROM THE BLOG — editorial cards */}
+      {posts.length > 0 && (
+        <section className="section" style={{ background: "var(--bg2)" }}>
+          <div className="container">
+            <Reveal>
+              <div className="section-head">
+                <div className="kicker">From the blog</div>
+                <h2>Learn the mechanics.</h2>
+                <p>Plain-English education on structure, risk and reporting — the same material our investors read.</p>
+              </div>
+            </Reveal>
+            <div className="grid-3">
+              {posts.slice(0, 3).map((p, i) => (
+                <Reveal key={p.id || p.slug} delay={`d${i}`}>
+                  <Link to={`/blog/${p.slug}`} className="b-card">
+                    <div className="b-img"><img src={p.image || p.cover_image || "/hero.jpg"} alt="" loading="lazy" /></div>
+                    <div className="b-body">
+                      {(p.tag || p.category) && <span className="b-pill">{p.tag || p.category}</span>}
+                      <h3>{p.title}</h3>
+                      <p>{p.excerpt}</p>
+                      <div className="b-meta">{[p.date || (p.published_at && new Date(p.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })), p.read || p.read_time].filter(Boolean).join(" · ")}</div>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }
