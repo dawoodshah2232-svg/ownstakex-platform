@@ -64,6 +64,9 @@ class ProjectController extends Controller
             'unit_price' => $project->unit_price,
             'min_units' => $project->min_units,
             'max_units' => $project->max_units,
+            // Dual progress bars: allocated = reserved + funded, funded alone.
+            'reserved' => $project->reserved,
+            'funded' => $project->funded,
             'available_units' => $project->availableUnits(),
             'allocated_percent' => $project->allocatedPercent(),
             'status' => $project->status,

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\InvestorController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ReservationController;
+use App\Http\Controllers\Api\V1\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -21,6 +22,9 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/blog', [BlogController::class, 'index']);
     Route::get('/blog/{slug}', [BlogController::class, 'show']);
+
+    // Projects page "notify me" for countries with no open project yet.
+    Route::post('/waitlist', [WaitlistController::class, 'store'])->middleware('throttle:10,1');
 
     /* ---------- authenticated (Sanctum) ---------- */
     Route::middleware('auth:sanctum')->group(function () {
@@ -53,6 +57,8 @@ Route::prefix('v1')->group(function () {
             Route::delete('/announcements/{announcement}', [AdminController::class, 'destroyAnnouncement']);
 
             Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
+
+            Route::get('/waitlist', [WaitlistController::class, 'index']);
         });
     });
 });
