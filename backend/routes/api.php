@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BlogController;
 use App\Http\Controllers\Api\V1\DocumentController;
+use App\Http\Controllers\Api\V1\InboxController;
 use App\Http\Controllers\Api\V1\InvestorController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ReservationController;
@@ -25,6 +26,10 @@ Route::prefix('v1')->group(function () {
 
     // Projects page "notify me" for countries with no open project yet.
     Route::post('/waitlist', [WaitlistController::class, 'store'])->middleware('throttle:10,1');
+
+    // Website forms: Contact page and "Submit a project".
+    Route::post('/contact', [InboxController::class, 'contact'])->middleware('throttle:10,1');
+    Route::post('/project-submissions', [InboxController::class, 'submitProject'])->middleware('throttle:5,1');
 
     /* ---------- authenticated (Sanctum) ---------- */
     Route::middleware('auth:sanctum')->group(function () {
@@ -59,6 +64,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
 
             Route::get('/waitlist', [WaitlistController::class, 'index']);
+            Route::get('/contact-messages', [InboxController::class, 'contactMessages']);
+            Route::get('/project-submissions', [InboxController::class, 'projectSubmissions']);
         });
     });
 });

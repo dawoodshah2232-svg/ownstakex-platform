@@ -748,3 +748,28 @@ video{max-width:100%}
 @media(max-width:1024px){.hiw-grid.g8{display:flex}}
 .hiw-band.hiw-page{padding-top:150px}
 @media(max-width:640px){.hiw-band.hiw-page{padding-top:120px}}
+/* Submit a project (spec v1.1) */
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.sp-note{font-size:13px;color:var(--muted);margin:0 0 8px}
+.sp-consent{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-weight:400}
+.sp-consent input{width:18px!important;height:18px;margin-top:2px;flex:none;accent-color:var(--orange)}
+.sp-consent span{font-size:13.5px;color:var(--muted)}
+.sp-criteria{color:var(--muted);font-size:14.5px;padding-left:20px;display:grid;gap:10px}
+.sp-criteria b{color:var(--ivory)}
+.sp-done{text-align:center;padding:30px 10px}
+.sp-done p{color:var(--muted);margin-bottom:10px}
+.sp-done h3{font-size:24px;margin-bottom:10px}
+.sp-done-ico{width:64px;height:64px;border-radius:50%;background:#dcfce7;color:#059669;display:grid;place-items:center;margin:0 auto 16px}
+@media(max-width:640px){.sp-grid{grid-template-columns:1fr}}
+/* Legal fee schedule + Reporting waterfall (spec v1.1) */
+.fee-schedule{scroll-margin-top:110px;margin-top:34px}
+.fee-schedule .table-wrap{margin:14px 0}
+.fee-example{background:var(--orange-soft);border-color:rgba(249,115,22,.3);margin-top:16px;margin-bottom:0}
+.fee-example h3{font-size:15px}
+.fee-example p{color:var(--muted);font-size:14.5px;margin:0}
+.waterfall-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+table.waterfall{min-width:0}
+table.waterfall th:last-child,table.waterfall td:last-child{text-align:right}
+table.waterfall tr.strong td{font-weight:800}
+table.waterfall tr.strong td:last-child{color:var(--orange2)}
+.waterfall-note{color:var(--dim);font-size:13px;margin:12px 0 0}

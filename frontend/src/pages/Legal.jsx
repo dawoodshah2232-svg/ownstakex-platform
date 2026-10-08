@@ -35,6 +35,37 @@ const SECTIONS = [
   },
 ];
 
+/** Fee schedule (spec v1.1) — a proposal under commercial review, labelled as such. */
+function FeeSchedule() {
+  return (
+    <section id="fees" className="fee-schedule">
+      <h2>Fee schedule</h2>
+      <p><span className="badge warn">Illustrative proposal for commercial review — not approved charges</span></p>
+      <p>Fees are charged to the project company and disclosed per project before you reserve. The model below is the proposed structure under commercial review:</p>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Fee</th><th>Amount</th><th>When</th><th>Paid to</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Closing fee</td><td className="num">1% of capital raised</td><td>At successful legal closing</td><td>Platform company</td></tr>
+            <tr><td>Administration</td><td className="num">1% p.a. of contributed capital</td><td>Accrued monthly, in arrears</td><td>Platform company</td></tr>
+            <tr><td>Performance fee</td><td className="num">Possible 10%</td><td>Only with explicit loss-recovery hurdle and separate investor approval</td><td>Platform company</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="panel fee-example">
+        <h3>Worked example — AED 2,000,000 raise</h3>
+        <p>
+          A project raising <b>AED 2 million</b> produces <b className="num">AED 20,000</b> at a 1% closing fee and approximately{" "}
+          <b className="num">AED 1,667 per month</b> at a 1% annual administration fee — before platform costs and taxes. Figures are
+          illustrative, not a forecast.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function Legal() {
   return (
     <div className="page">
@@ -48,6 +79,7 @@ export default function Legal() {
             <Reveal key={i}>
               <h2>{s.h}</h2>
               {s.body.map((p, j) => <p key={j}>{p}</p>)}
+              {s.h === "Risk disclosure" && <FeeSchedule />}
             </Reveal>
           ))}
         </div>

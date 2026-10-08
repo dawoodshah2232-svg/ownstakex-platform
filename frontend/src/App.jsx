@@ -15,6 +15,7 @@ import Contact from "./pages/Contact";
 import Faqs from "./pages/Faqs";
 import Legal from "./pages/Legal";
 import Reporting from "./pages/Reporting";
+import SubmitProject from "./pages/SubmitProject";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import InvestorDashboard from "./pages/InvestorDashboard";
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/faqs" element={<Shell><Faqs /></Shell>} />
           <Route path="/legal" element={<Shell><Legal /></Shell>} />
           <Route path="/reporting" element={<Shell><Reporting /></Shell>} />
+          <Route path="/submit-project" element={<Shell><SubmitProject /></Shell>} />
           <Route path="/login" element={<Shell><Login /></Shell>} />
           <Route path="/register" element={<Shell><Register /></Shell>} />
           <Route

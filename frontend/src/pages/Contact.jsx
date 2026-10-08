@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import client from "../api/client";
-import { IconAlert, IconCheck, IconMail, IconPin } from "../components/icons";
+import { IconAlert, IconArrow, IconCheck, IconMail, IconPin } from "../components/icons";
 import Reveal from "../components/Reveal";
 
 export default function Contact() {
@@ -80,6 +81,12 @@ export default function Contact() {
               <div className="panel">
                 <h3>Response times</h3>
                 <p className="ph-sub">General enquiries: 2 business days.<br />Distribution queries: 1 business day.</p>
+              </div>
+              <div className="panel">
+                <h3>Have a project?</h3>
+                <p className="ph-sub">For operators &amp; sponsors</p>
+                <p style={{ color: "var(--muted)", fontSize: 15 }}>Own or operate a commercial asset? Submit it for independent evaluation — economics first, story second.</p>
+                <Link to="/submit-project" className="btn btn-ghost" style={{ marginTop: 6 }}>Submit a project <IconArrow size={16} /></Link>
               </div>
             </div>
           </Reveal>

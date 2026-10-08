@@ -26,8 +26,10 @@ export default function Footer() {
             <h5>Company</h5>
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
+            <Link to="/submit-project">Submit a project</Link>
             <Link to="/faqs">FAQs</Link>
             <Link to="/legal">Legal</Link>
+            <Link to="/legal#fees">Fee schedule</Link>
           </div>
           <div>
             <h5>Account</h5>
