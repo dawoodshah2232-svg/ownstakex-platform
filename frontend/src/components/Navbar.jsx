@@ -59,7 +59,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link to="/login" className="btn btn-ghost btn-sm">Log in</Link>
-                <Link to="/projects" className="btn btn-primary btn-sm">Get started</Link>
+                <Link to="/register" className="btn btn-primary btn-sm">Get started</Link>
               </>
             )}
           </div>
@@ -83,7 +83,10 @@ export default function Navbar() {
             <button className="btn btn-ghost" onClick={handleLogout} style={{ width: "100%", marginTop: 10 }}>Log out</button>
           </>
         ) : (
-          <Link to="/login" className="btn btn-primary" onClick={() => setOpen(false)}>Log in</Link>
+          <>
+            <Link to="/login" className="btn btn-ghost" onClick={() => setOpen(false)}>Log in</Link>
+            <Link to="/register" className="btn btn-primary" onClick={() => setOpen(false)}>Get started</Link>
+          </>
         )}
       </div>
     </>

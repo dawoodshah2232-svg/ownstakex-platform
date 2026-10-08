@@ -44,6 +44,44 @@ const statusBadge = (s) => {
   return m[s] || "gray";
 };
 
+const rowsFrom = (payload) => {
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload)) return payload;
+  return [];
+};
+
+const normalizeUser = (u) => ({
+  ...u,
+  kyc: u.kyc || (u.kyc_status === "approved" ? "verified" : u.kyc_status || "pending"),
+  invested: u.invested || 0,
+  joined: u.joined || (u.created_at ? String(u.created_at).slice(0, 10) : ""),
+});
+
+const normalizeProject = (p) => {
+  const raised = p.raised_amount ?? ((Number(p.funded) || 0) * (Number(p.unit_price) || 0));
+  return {
+    ...p,
+    target_amount: p.target_amount ?? p.capital ?? 0,
+    raised_amount: raised,
+    min_investment: p.min_investment ?? ((Number(p.min_units) || 1) * (Number(p.unit_price) || 0)),
+    expected_yield: p.expected_yield || "",
+    media: p.media || p.images || [],
+    investors_count: p.investors_count ?? p.investments_count ?? p.reservations_count ?? 0,
+  };
+};
+
+const normalizeAudit = (a) => ({
+  ...a,
+  time: a.time || (a.created_at ? String(a.created_at).slice(0, 16).replace("T", " ") : ""),
+});
+
+const buildOverview = (projects, investors, totalUsers) => ({
+  users: totalUsers || investors.length,
+  projects: projects.length,
+  total_raised: projects.reduce((sum, p) => sum + (Number(p.raised_amount) || 0), 0),
+  pending_kyc: investors.filter((u) => u.kyc === "pending").length,
+});
+
 /* ---------------- shared UI atoms ---------------- */
 function StatCard({ icon: Icon, value, label, tint }) {
   const tints = {
@@ -143,28 +181,31 @@ export default function AdminDashboard() {
     };
     (async () => {
       try {
-        const [ov, pj, dc, iv, an] = await Promise.all([
-          client.get("/admin/overview"),
+        const [pj, dc, iv, an] = await Promise.all([
           client.get("/admin/projects"),
           client.get("/admin/documents"),
-          client.get("/admin/investors"),
+          client.get("/admin/users?role=investor"),
           client.get("/admin/announcements"),
         ]);
         if (!alive) return;
+        const projects = rowsFrom(pj.data).map(normalizeProject);
+        const investors = rowsFrom(iv.data).map(normalizeUser);
+        const documents = rowsFrom(dc.data);
+        const announcements = rowsFrom(an.data);
         const [campaigns, treasury, audit] = await Promise.all([
           tryGet("/admin/campaigns"),
           tryGet("/admin/treasury"),
-          tryGet("/admin/audit-log"),
+          tryGet("/admin/audit-logs"),
         ]);
         if (alive) setData({
-          overview: ov.data.data || ov.data,
-          projects: pj.data.data || pj.data,
-          documents: dc.data.data || dc.data,
-          investors: iv.data.data || iv.data,
-          announcements: an.data.data || an.data,
+          overview: buildOverview(projects, investors, iv.data?.total),
+          projects,
+          documents,
+          investors,
+          announcements,
           campaigns: campaigns || null,
           treasury: treasury || null,
-          audit: audit || null,
+          audit: audit ? rowsFrom(audit).map(normalizeAudit) : null,
         });
       } catch (err) {
         if (alive) {
@@ -174,7 +215,13 @@ export default function AdminDashboard() {
               projects: DEMO_PROJECTS.map((p) => ({ ...p, media: [], documents: [] })),
               campaigns: null, treasury: null, audit: null,
             });
-          } else setError("Could not load admin data.");
+          } else if (err.response?.status === 401) {
+            setError("Please log in again. Your admin session has expired.");
+          } else if (err.response?.status === 403) {
+            setError("This account does not have admin permission.");
+          } else {
+            setError("Could not load admin data. Please refresh the page or try again shortly.");
+          }
         }
       }
     })();
@@ -184,7 +231,10 @@ export default function AdminDashboard() {
   const refreshProjects = async () => {
     try {
       const { data } = await client.get("/admin/projects");
-      setData((d) => ({ ...d, projects: data.data || data }));
+      setData((d) => {
+        const projects = rowsFrom(data).map(normalizeProject);
+        return { ...d, projects, overview: buildOverview(projects, d.investors || [], d.overview?.users) };
+      });
     } catch { /* demo: local state already updated */ }
   };
 
@@ -330,13 +380,13 @@ function ProjectsTab({ projects, setData, refresh }) {
     setNotice("");
     try {
       if (editing?.id && !String(editing.id).startsWith("demo")) {
-        const { data } = await client.put(`/admin/projects/${editing.id}`, payload);
-        setData((d) => ({ ...d, projects: d.projects.map((p) => (p.id === editing.id ? (data.data || data) : p)) }));
+        const { data } = await client.patch(`/admin/projects/${editing.id}`, payload);
+        setData((d) => ({ ...d, projects: d.projects.map((p) => (p.id === editing.id ? normalizeProject(data.data || data) : p)) }));
       } else if (editing?.id) {
         setData((d) => ({ ...d, projects: d.projects.map((p) => (p.id === editing.id ? { ...p, ...payload } : p)) }));
       } else {
         const { data } = await client.post("/admin/projects", payload);
-        setData((d) => ({ ...d, projects: [...d.projects, data.data || data] }));
+        setData((d) => ({ ...d, projects: [...d.projects, normalizeProject(data.data || data)] }));
       }
       setNotice("ok:Project saved.");
       setEditing(null);
@@ -635,7 +685,8 @@ function ComplianceTab({ rows, setData }) {
 
   const decide = async (id, verdict) => {
     setBusy(id);
-    try { await client.put(`/admin/investors/${id}/kyc`, { status: verdict }); } catch { /* demo */ }
+    const kyc_status = verdict === "verified" ? "approved" : verdict;
+    try { await client.patch(`/admin/users/${id}`, { kyc_status }); } catch { /* demo */ }
     setData((d) => ({ ...d, investors: d.investors.map((u) => (u.id === id ? { ...u, kyc: verdict } : u)) }));
     setBusy(null);
   };

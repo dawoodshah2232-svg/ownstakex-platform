@@ -9,6 +9,27 @@ const DEMO_USERS = {
 };
 const DEMO_PASSWORD = "password";
 
+const validationText = (errors) => {
+  if (!errors || typeof errors !== "object") return "";
+  return Object.values(errors).flat().filter(Boolean).join(" ");
+};
+
+const friendlyAuthError = (err, fallback) => {
+  if (!err.response) return "We could not connect to the server. Please check your connection and try again.";
+  const status = err.response.status;
+  const data = err.response.data || {};
+  const details = validationText(data.errors);
+
+  if (status === 422) return details || data.message || fallback;
+  if (status === 401) return "Your session has expired. Please log in again.";
+  if (status === 403) return "This account does not have permission to open that page.";
+  if (status === 404) return "The server route for this action is missing. Please contact support.";
+  if (status === 419) return "Your session expired. Refresh the page and try again.";
+  if (status >= 500) return "The server had a problem while processing this request. Please try again shortly.";
+
+  return data.message || fallback;
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -53,28 +74,27 @@ export function AuthProvider({ children }) {
     } catch (err) {
       const unreachable = !err.response;
       const demoUser = DEMO_USERS[normalized];
-      if (unreachable && demoUser && password === DEMO_PASSWORD) {
+      if (import.meta.env.DEV && unreachable && demoUser && password === DEMO_PASSWORD) {
         persist("demo-token-" + demoUser.role, demoUser);
         return { user: demoUser, demo: true };
       }
-      const message =
-        err.response?.data?.message ||
-        (unreachable
-          ? "Could not reach the API. Please try again shortly."
-          : "Invalid email or password.");
-      throw new Error(message);
+      throw new Error(friendlyAuthError(err, "Invalid email or password."));
     }
   };
 
   const register = async (name, email, password) => {
-    const { data } = await client.post("/auth/register", {
-      name,
-      email: email.trim().toLowerCase(),
-      password,
-      password_confirmation: password,
-    });
-    persist(data.token, data.user);
-    return data.user;
+    try {
+      const { data } = await client.post("/auth/register", {
+        name,
+        email: email.trim().toLowerCase(),
+        password,
+        password_confirmation: password,
+      });
+      persist(data.token, data.user);
+      return data.user;
+    } catch (err) {
+      throw new Error(friendlyAuthError(err, "We could not create your account. Please check the form and try again."));
+    }
   };
 
   const logout = async () => {

@@ -22,7 +22,7 @@ export default function Register() {
       await register(form.name, form.email, form.password);
       navigate("/investor", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Registration failed. The API may be offline.");
+      setError(err.message || "We could not create your account. Please check the form and try again.");
     } finally {
       setBusy(false);
     }
