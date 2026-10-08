@@ -60,7 +60,7 @@ export function AuthProvider({ children }) {
       const message =
         err.response?.data?.message ||
         (unreachable
-          ? "Could not reach the API. Demo accounts work offline: investor@ownstakex.com / password."
+          ? "Could not reach the API. Please try again shortly."
           : "Invalid email or password.");
       throw new Error(message);
     }

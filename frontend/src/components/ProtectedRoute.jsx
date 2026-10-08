@@ -18,6 +18,9 @@ export default function ProtectedRoute({ children, roles }) {
   }
 
   if (roles && roles.length > 0 && !roles.includes(user?.role)) {
+    if (location.pathname.startsWith("/admin")) {
+      return <Navigate to="/login" state={{ from: location.pathname, forceLogin: true }} replace />;
+    }
     return <Navigate to={user?.role === "admin" ? "/admin" : "/investor"} replace />;
   }
 

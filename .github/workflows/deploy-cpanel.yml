@@ -130,7 +130,7 @@ jobs:
           CPANEL_PATH: ${{ secrets.CPANEL_PATH }}
           RUN_DB_SEED: ${{ secrets.RUN_DB_SEED }}
         run: |
-          TERM=xterm ssh -tt -p "$CPANEL_PORT" -i ~/.ssh/cpanel_deploy_key "$CPANEL_USER@$CPANEL_HOST" \
+          TERM=xterm ssh -T -p "$CPANEL_PORT" -i ~/.ssh/cpanel_deploy_key "$CPANEL_USER@$CPANEL_HOST" \
             "export TERM=xterm; export CPANEL_PATH='$CPANEL_PATH'; export RUN_DB_SEED='$RUN_DB_SEED'; bash -se" <<'REMOTE_SCRIPT'
             set -e
 
